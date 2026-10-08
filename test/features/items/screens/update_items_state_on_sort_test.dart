@@ -9,7 +9,7 @@ import 'package:test_task_flutter/features/items/screens/items_screen.dart';
 
 void main() {
   testWidgets(
-    'Після сортування товарів оновлюються стейти в списку і вікривається правильний товар по кліку',
+    'Після сортування товарів оновлюються стейти айтемів в списку і вікривається правильний товар по кліку',
     (tester) async {
       await tester.pumpWidget(
         ChangeNotifierProvider(
