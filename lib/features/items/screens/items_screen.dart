@@ -75,7 +75,11 @@ class _ItemsScreenState extends State<ItemsScreen> {
         separatorBuilder: (_, _) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           final item = items[index];
-          return ItemListTile(item: item, onPressed: _openDetails);
+          return ItemListTile(
+            key: ValueKey(item.id),
+            item: item,
+            onPressed: _openDetails,
+          );
         },
       ),
     );
