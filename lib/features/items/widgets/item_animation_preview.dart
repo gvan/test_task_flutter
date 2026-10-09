@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-// The animated card with icon. The icon jumps and lands during animation. 
+// The animated card with icon. The icon jumps and lands during animation.
 // The background changes it's color by drawing circle from center to
-// borders after icon jumping. The transition to previous state is done 
+// borders after icon jumping. The transition to previous state is done
 // using reverse animation.
 class ItemAnimationPreview extends StatefulWidget {
   const ItemAnimationPreview({
@@ -91,6 +91,7 @@ class _ItemAnimationPreviewState extends State<ItemAnimationPreview>
       CurvedAnimation(parent: _controller, curve: Interval(begin, end));
 
   void _onCardTap() {
+    if (_controller.isAnimating) return;
     setState(() => _selected = !_selected);
 
     if (_selected) {
