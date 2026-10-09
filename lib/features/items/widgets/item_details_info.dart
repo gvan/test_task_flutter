@@ -25,7 +25,7 @@ class ItemDetailsInfo extends StatelessWidget {
         _RatingLabel(item: item),
         const SizedBox(height: 24),
         _PiceBlock(item: item, color: color),
-        const SizedBox(height: 12),
+        const SizedBox(height: 20),
         Divider(
           color: Theme.of(
             context,
@@ -33,9 +33,14 @@ class ItemDetailsInfo extends StatelessWidget {
           thickness: 0.5,
         ),
         const SizedBox(height: 12),
-        Text('Опис', style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          'Опис',
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: .w700),
+        ),
         const SizedBox(height: 12),
-        Text(item.description, style: Theme.of(context).textTheme.bodyMedium),
+        Text(item.description, style: Theme.of(context).textTheme.bodyLarge),
         const SizedBox(height: 24),
       ],
     );
