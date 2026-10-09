@@ -91,7 +91,7 @@ class _RatingLabel extends StatelessWidget {
           mainAxisSize: .min,
           children: [
             for (var i = 0; i < _maxRating; i++)
-              _RatingStar(rating: (item.rating - i).clamp(0, 1).toDouble()),
+              RatingStar(rating: (item.rating - i).clamp(0, 1).toDouble()),
           ],
         ),
         const SizedBox(width: 8),
@@ -121,8 +121,8 @@ class _RatingLabel extends StatelessWidget {
   }
 }
 
-class _RatingStar extends StatelessWidget {
-  const _RatingStar({required this.rating})
+class RatingStar extends StatelessWidget {
+  const RatingStar({super.key, required this.rating})
     : assert(rating >= 0 && rating <= 1);
 
   final double rating;
