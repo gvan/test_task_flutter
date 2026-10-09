@@ -59,14 +59,17 @@ class _CategoryLabel extends StatelessWidget {
       label: Padding(
         padding: const .all(4),
         child: Row(
+          mainAxisSize: .min,
           children: [
             Icon(Icons.sell_outlined, size: 14, color: color),
             SizedBox(width: 4),
-            Text(
-              item.category,
-              style: Theme.of(
-                context,
-              ).textTheme.labelMedium?.copyWith(color: color),
+            Expanded(
+              child: Text(
+                item.category,
+                style: Theme.of(
+                  context,
+                ).textTheme.labelMedium?.copyWith(color: color),
+              ),
             ),
           ],
         ),
@@ -163,14 +166,16 @@ class _PiceBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
-          '\$${item.price.toStringAsFixed(2)}',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: .w800,
-            letterSpacing: -0.5,
+        Expanded(
+          child: Text(
+            '\$${item.price.toStringAsFixed(2)}',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: .w800,
+              letterSpacing: -0.5,
+            ),
           ),
         ),
-        Spacer(),
+        SizedBox(width: 8),
         FilledButton.icon(
           onPressed: () {},
           icon: const Icon(Icons.favorite_border),
