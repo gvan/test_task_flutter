@@ -79,13 +79,21 @@ class _CategoryLabel extends StatelessWidget {
 class _RatingLabel extends StatelessWidget {
   const _RatingLabel({required this.item});
 
+  static const _maxRating = 5;
+
   final ItemModel item;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(Icons.star_rounded, size: 22, color: Colors.amber.shade700),
+        Row(
+          mainAxisSize: .min,
+          children: [
+            for (var i = 0; i < _maxRating; i++)
+              _RatingStar(rating: (item.rating - i).clamp(0, 1).toDouble()),
+          ],
+        ),
         const SizedBox(width: 8),
         Text.rich(
           TextSpan(
@@ -97,7 +105,7 @@ class _RatingLabel extends StatelessWidget {
               TextSpan(
                 children: [
                   TextSpan(
-                    text: ' з 5',
+                    text: ' з $_maxRating',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -106,6 +114,38 @@ class _RatingLabel extends StatelessWidget {
               ),
             ],
             style: Theme.of(context).textTheme.titleSmall,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RatingStar extends StatelessWidget {
+  const _RatingStar({required this.rating})
+    : assert(rating >= 0 && rating <= 1);
+
+  final double rating;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Icon(
+          Icons.star_rounded,
+          size: 22,
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
+        ClipRect(
+          child: Align(
+            alignment: .centerStart,
+            widthFactor: rating,
+            heightFactor: 1,
+            child: Icon(
+              Icons.star_rounded,
+              size: 22,
+              color: Colors.amber.shade700,
+            ),
           ),
         ),
       ],

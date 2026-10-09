@@ -41,6 +41,7 @@ class _ItemDetailsBody extends StatelessWidget {
         constraints: BoxConstraints(maxWidth: _maxContentWidth),
         child: isWide
             ? Row(
+                crossAxisAlignment: .start,
                 children: [
                   Expanded(child: preview),
                   SizedBox(width: 24),
