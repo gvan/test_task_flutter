@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:test_task_flutter/features/items/models/item_model.dart';
 
 class ItemDetailsInfo extends StatelessWidget {
-  const ItemDetailsInfo({super.key, required this.item, required this.color});
+  const ItemDetailsInfo({
+    super.key,
+    required this.item,
+    required this.color,
+    required this.onFavoriteTap,
+  });
 
   final ItemModel item;
   final Color color;
+  final Function() onFavoriteTap;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +30,7 @@ class ItemDetailsInfo extends StatelessWidget {
         const SizedBox(height: 8),
         _RatingLabel(item: item),
         const SizedBox(height: 24),
-        _PiceBlock(item: item, color: color),
+        _PiceBlock(item: item, color: color, onFavoriteTap: onFavoriteTap),
         const SizedBox(height: 20),
         Divider(
           color: Theme.of(
@@ -157,10 +163,15 @@ class RatingStar extends StatelessWidget {
 }
 
 class _PiceBlock extends StatelessWidget {
-  const _PiceBlock({required this.item, required this.color});
+  const _PiceBlock({
+    required this.item,
+    required this.color,
+    required this.onFavoriteTap,
+  });
 
   final ItemModel item;
   final Color color;
+  final Function() onFavoriteTap;
 
   @override
   Widget build(BuildContext context) {
@@ -177,9 +188,13 @@ class _PiceBlock extends StatelessWidget {
         ),
         SizedBox(width: 8),
         FilledButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.favorite_border),
-          label: const Text('Зберегти на потім'),
+          onPressed: onFavoriteTap,
+          icon: item.favorite
+              ? const Icon(Icons.favorite)
+              : const Icon(Icons.favorite_border),
+          label: Text(
+            item.favorite ? 'Видалити зі збережених' : 'Зберегти на потім',
+          ),
           style: FilledButton.styleFrom(
             backgroundColor: color,
             minimumSize: const Size(0, 48),

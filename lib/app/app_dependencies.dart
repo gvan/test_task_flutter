@@ -12,7 +12,10 @@ class AppDependencies extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<IItemsRepository>(create: (_) => ItemsRepository()),
+        Provider<IItemsRepository>(
+          create: (_) => ItemsRepository(),
+          dispose: (_, repository) => repository.dispose(),
+        ),
         ChangeNotifierProvider<ItemsProvider>(
           create: (context) => ItemsProvider(context.read<IItemsRepository>()),
         ),

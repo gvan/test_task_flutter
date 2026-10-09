@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:test_task_flutter/features/items/models/item_model.dart';
+import 'package:test_task_flutter/features/items/providers/item_details_provider.dart';
 import 'package:test_task_flutter/features/items/providers/items_provider.dart';
 import 'package:test_task_flutter/features/items/repository/items_repository.dart';
 import 'package:test_task_flutter/features/items/screens/item_details_screen.dart';
@@ -12,8 +12,17 @@ void main() {
     'Після сортування товарів оновлюються стейти айтемів в списку і вікривається правильний товар по кліку',
     (tester) async {
       await tester.pumpWidget(
-        ChangeNotifierProvider(
-          create: (_) => ItemsProvider(_MockItemsRepository()),
+        MultiProvider(
+          providers: [
+            Provider<IItemsRepository>(
+              create: (_) => ItemsRepository(),
+              dispose: (_, repository) => repository.dispose(),
+            ),
+            ChangeNotifierProvider(
+              create: (context) =>
+                  ItemsProvider(context.read<IItemsRepository>()),
+            ),
+          ],
           child: const MaterialApp(home: ItemsScreen()),
         ),
       );
@@ -29,37 +38,12 @@ void main() {
 
       final detailsScreen = find.byType(ItemDetailsScreen);
       expect(detailsScreen, findsOneWidget);
-      // Check that new item opens in details screen after sort
-      expect(tester.widget<ItemDetailsScreen>(detailsScreen).item.id, 2);
+      final openedItem = tester
+          .element(detailsScreen)
+          .read<ItemDetailsProvider>()
+          .state
+          .item;
+      expect(openedItem.id, 2);
     },
   );
-}
-
-// Create repository with mock data
-class _MockItemsRepository implements IItemsRepository {
-  @override
-  Future<List<ItemModel>> getItems() async {
-    return const [
-      ItemModel(
-        id: 1,
-        title: 'Настільна лампа',
-        description: '',
-        category: '',
-        price: 1.0,
-        rating: 1.0,
-        colorValue: 0xFF000000,
-        iconCodePoint: 0xe37c,
-      ),
-      ItemModel(
-        id: 2,
-        title: 'Блокнот',
-        description: '',
-        category: '',
-        price: 1.0,
-        rating: 1.0,
-        colorValue: 0xFF000000,
-        iconCodePoint: 0xe0ef,
-      ),
-    ];
-  }
 }

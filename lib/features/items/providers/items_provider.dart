@@ -1,32 +1,52 @@
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+
+import 'package:test_task_flutter/core/provider/base_provider.dart';
 
 import '../models/item_model.dart';
 import '../repository/items_repository.dart';
 import 'state/items_state.dart';
 
-class ItemsProvider extends ChangeNotifier {
+class ItemsProvider extends BaseProvider<ItemsState> {
   ItemsProvider(this._repository);
 
   final IItemsRepository _repository;
-  ItemsState _state = ItemsState.initial();
-  ItemsState get state => _state;
+  @override
+  ItemsState backedState = ItemsState.initial();
+  ItemsState get state => backedState;
+  StreamSubscription? _itemsSubscription;
+
+  void watchItems() {
+    _itemsSubscription = _repository.watchItems().listen(
+      (items) {
+        setState(
+          backedState.copyWith(
+            items: items,
+            isLoading: false,
+            hasLoaded: true,
+            clearError: true,
+          ),
+        );
+      },
+      onError: (Object error) {
+        setState(
+          backedState.copyWith(
+            isLoading: false,
+            hasLoaded: true,
+            errorMessage: error.toString(),
+          ),
+        );
+      },
+    );
+  }
 
   Future<void> loadItems() async {
-    if (_state.isLoading) return;
-    _setState(_state.copyWith(isLoading: true, clearError: true));
+    if (backedState.isLoading) return;
+    setState(backedState.copyWith(isLoading: true, clearError: true));
     try {
-      final items = await _repository.getItems();
-      _setState(
-        _state.copyWith(
-          items: items,
-          isLoading: false,
-          hasLoaded: true,
-          clearError: true,
-        ),
-      );
+      await _repository.getItems();
     } catch (error) {
-      _setState(
-        _state.copyWith(
+      setState(
+        backedState.copyWith(
           isLoading: false,
           hasLoaded: true,
           errorMessage: error.toString(),
@@ -36,7 +56,7 @@ class ItemsProvider extends ChangeNotifier {
   }
 
   void sortBy(ItemsSort sort) {
-    final items = List<ItemModel>.of(_state.items);
+    final items = List<ItemModel>.of(backedState.items);
     switch (sort) {
       case ItemsSort.original:
         items.sort((a, b) => a.id.compareTo(b.id));
@@ -45,11 +65,12 @@ class ItemsProvider extends ChangeNotifier {
       case ItemsSort.price:
         items.sort((a, b) => a.price.compareTo(b.price));
     }
-    _setState(_state.copyWith(items: items, sort: sort));
+    setState(backedState.copyWith(items: items, sort: sort));
   }
 
-  void _setState(ItemsState state) {
-    _state = state;
-    notifyListeners();
+  @override
+  void dispose() {
+    _itemsSubscription?.cancel();
+    super.dispose();
   }
 }

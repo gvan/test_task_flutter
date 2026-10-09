@@ -32,6 +32,7 @@ void main() {
             body: ItemDetailsInfo(
               item: _item(rating),
               color: const Color(0xFF7357A3),
+              onFavoriteTap: () {},
             ),
           ),
         ),

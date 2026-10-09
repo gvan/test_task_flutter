@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:test_task_flutter/features/items/providers/favorite_items_provider.dart';
+import 'package:test_task_flutter/features/items/providers/item_details_provider.dart';
+import 'package:test_task_flutter/features/items/repository/items_repository.dart';
+import 'package:test_task_flutter/features/items/screens/favorite_items_screen.dart';
 
 import '../models/item_model.dart';
 import '../providers/items_provider.dart';
@@ -21,7 +25,9 @@ class _ItemsScreenState extends State<ItemsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ItemsProvider>().loadItems();
+      final itemsRepository = context.read<ItemsProvider>();
+      itemsRepository.watchItems();
+      itemsRepository.loadItems();
     });
   }
 
@@ -33,6 +39,10 @@ class _ItemsScreenState extends State<ItemsScreen> {
       appBar: AppBar(
         title: const Text('Каталог товарів'),
         actions: [
+          IconButton(
+            onPressed: _openFavoriteItems,
+            icon: const Icon(Icons.favorite_outline),
+          ),
           PopupMenuButton<ItemsSort>(
             initialValue: state.sort,
             onSelected: provider.sortBy,
@@ -76,7 +86,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
         itemBuilder: (context, index) {
           final item = items[index];
           return ItemListTile(
-            key: ValueKey(item.id),
+            key: Key("${item.id}-${item.favorite}"),
             item: item,
             onPressed: _openDetails,
           );
@@ -87,7 +97,26 @@ class _ItemsScreenState extends State<ItemsScreen> {
 
   void _openDetails(ItemModel item) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => ItemDetailsScreen(item: item)),
+      MaterialPageRoute<void>(
+        builder: (_) => ChangeNotifierProvider(
+          create: (context) =>
+              ItemDetailsProvider(context.read<IItemsRepository>(), item),
+          child: ItemDetailsScreen(),
+        ),
+      ),
+    );
+  }
+
+  void _openFavoriteItems() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider(
+          create: (context) => FavoriteItemsProvider(
+            repository: context.read<IItemsRepository>(),
+          ),
+          child: FavoriteItemsScreen(),
+        ),
+      ),
     );
   }
 }
