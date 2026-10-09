@@ -37,7 +37,10 @@ class _ItemAnimationPreviewState extends State<ItemAnimationPreview> {
               right: 16,
               top: 16,
               child: Badge(
-                label: Text(_active ? 'Обрано' : 'Натисни'),
+                label: Padding(
+                  padding: const .all(2),
+                  child: Text(_active ? 'Обрано' : 'Натисни'),
+                ),
                 backgroundColor: widget.color,
               ),
             ),
