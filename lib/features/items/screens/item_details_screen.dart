@@ -5,54 +5,65 @@ import 'package:test_task_flutter/features/items/widgets/item_details_info.dart'
 
 import '../widgets/item_animation_preview.dart';
 
-class ItemDetailsScreen extends StatelessWidget {
+class ItemDetailsScreen extends StatefulWidget {
   const ItemDetailsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Деталі товару')),
-      body: _ItemDetailsBody(),
-    );
-  }
-}
-
-class _ItemDetailsBody extends StatelessWidget {
-  const _ItemDetailsBody();
 
   static const _wideWidth = 720.0;
   static const _maxContentWidth = 1040.0;
 
   @override
+  State<ItemDetailsScreen> createState() => _ItemDetailsScreenState();
+}
+
+class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    final provider = context.read<ItemDetailsProvider>();
+    provider.watchFavoriteItems();
+    provider.loadFavoriteItems();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = context.watch<ItemDetailsProvider>();
     final item = provider.state.item;
+    final favoriteItems = provider.state.favoriteItems;
 
     final color = Color(item.colorValue);
     final icon = IconData(item.iconCodePoint, fontFamily: 'MaterialIcons');
-    final isWide = MediaQuery.sizeOf(context).width >= _wideWidth;
+    final isWide =
+        MediaQuery.sizeOf(context).width >= ItemDetailsScreen._wideWidth;
 
     final preview = ItemAnimationPreview(color: color, icon: icon);
     final details = ItemDetailsInfo(
       item: item,
+      isFavorite: favoriteItems.any((e) => e.id == item.id),
       color: color,
       onFavoriteTap: () => provider.toggleFavorite(),
     );
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: _maxContentWidth),
-        child: isWide
-            ? Row(
-                crossAxisAlignment: .start,
-                children: [
-                  Expanded(child: preview),
-                  SizedBox(width: 24),
-                  Expanded(child: details),
-                ],
-              )
-            : Column(children: [preview, const SizedBox(height: 24), details]),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Деталі товару')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: ItemDetailsScreen._maxContentWidth,
+          ),
+          child: isWide
+              ? Row(
+                  crossAxisAlignment: .start,
+                  children: [
+                    Expanded(child: preview),
+                    SizedBox(width: 24),
+                    Expanded(child: details),
+                  ],
+                )
+              : Column(
+                  children: [preview, const SizedBox(height: 24), details],
+                ),
+        ),
       ),
     );
   }

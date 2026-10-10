@@ -25,9 +25,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final itemsRepository = context.read<ItemsProvider>();
-      itemsRepository.watchItems();
-      itemsRepository.loadItems();
+      context.read<ItemsProvider>().loadItems();
     });
   }
 
@@ -86,7 +84,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
         itemBuilder: (context, index) {
           final item = items[index];
           return ItemListTile(
-            key: Key("${item.id}-${item.favorite}"),
+            key: ValueKey(item.id),
             item: item,
             onPressed: _openDetails,
           );

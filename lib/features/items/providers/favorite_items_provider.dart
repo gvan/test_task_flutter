@@ -13,12 +13,12 @@ class FavoriteItemsProvider extends BaseProvider<FavoriteItemsState> {
   FavoriteItemsState get state => backedState;
   StreamSubscription? _itemsSubscription;
 
-  void watchItems() {
-    _itemsSubscription = _repository.watchItems().listen(
-      (items) {
+  void watchFavoriteItems() {
+    _itemsSubscription = _repository.watchFavoriteItems().listen(
+      (favoriteItems) {
         setState(
           backedState.copyWith(
-            favoriteItems: items.where((e) => e.favorite).toList(),
+            favoriteItems: favoriteItems,
             isLoading: false,
             hasLoaded: true,
             clearError: true,
@@ -37,11 +37,11 @@ class FavoriteItemsProvider extends BaseProvider<FavoriteItemsState> {
     );
   }
 
-  Future<void> loadItems() async {
+  Future<void> loadFavoriteItems() async {
     if (backedState.isLoading) return;
     setState(backedState.copyWith(isLoading: true, clearError: true));
     try {
-      await _repository.getItems();
+      await _repository.getFavoriteItems();
     } catch (error) {
       setState(
         backedState.copyWith(

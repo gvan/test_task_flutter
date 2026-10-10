@@ -13,37 +13,20 @@ class ItemsProvider extends BaseProvider<ItemsState> {
   @override
   ItemsState backedState = ItemsState.initial();
   ItemsState get state => backedState;
-  StreamSubscription? _itemsSubscription;
-
-  void watchItems() {
-    _itemsSubscription = _repository.watchItems().listen(
-      (items) {
-        setState(
-          backedState.copyWith(
-            items: items,
-            isLoading: false,
-            hasLoaded: true,
-            clearError: true,
-          ),
-        );
-      },
-      onError: (Object error) {
-        setState(
-          backedState.copyWith(
-            isLoading: false,
-            hasLoaded: true,
-            errorMessage: error.toString(),
-          ),
-        );
-      },
-    );
-  }
 
   Future<void> loadItems() async {
     if (backedState.isLoading) return;
     setState(backedState.copyWith(isLoading: true, clearError: true));
     try {
-      await _repository.getItems();
+      final items = await _repository.getItems();
+      setState(
+        backedState.copyWith(
+          items: items,
+          isLoading: false,
+          hasLoaded: true,
+          clearError: true,
+        ),
+      );
     } catch (error) {
       setState(
         backedState.copyWith(
@@ -67,10 +50,5 @@ class ItemsProvider extends BaseProvider<ItemsState> {
     }
     setState(backedState.copyWith(items: items, sort: sort));
   }
-
-  @override
-  void dispose() {
-    _itemsSubscription?.cancel();
-    super.dispose();
-  }
+  
 }

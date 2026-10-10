@@ -23,8 +23,8 @@ class _FavoriteItemsScreenState extends State<FavoriteItemsScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<FavoriteItemsProvider>();
-      provider.watchItems();
-      provider.loadItems();
+      provider.watchFavoriteItems();
+      provider.loadFavoriteItems();
     });
   }
 
@@ -48,7 +48,7 @@ class _FavoriteItemsScreenState extends State<FavoriteItemsScreen> {
     if (state.errorMessage != null && items.isEmpty) {
       return ItemsErrorView(
         message: state.errorMessage!,
-        onRetry: provider.loadItems,
+        onRetry: provider.loadFavoriteItems,
       );
     }
 
@@ -63,7 +63,7 @@ class _FavoriteItemsScreenState extends State<FavoriteItemsScreen> {
       itemBuilder: (_, index) {
         final item = items[index];
         return ItemListTile(
-          key: Key("${item.id}=${item.favorite}"),
+          key: ValueKey(item.id),
           item: item,
           onPressed: _openDetails,
         );

@@ -11,7 +11,6 @@ class ItemModel {
     required this.rating,
     required this.colorValue,
     required this.iconCodePoint,
-    this.favorite = false,
   });
 
   final int id;
@@ -22,7 +21,6 @@ class ItemModel {
   final double rating;
   final int colorValue;
   final int iconCodePoint;
-  final bool favorite;
 
   ItemModel copyWith({
     int? id,
@@ -33,7 +31,6 @@ class ItemModel {
     double? rating,
     int? colorValue,
     int? iconCodePoint,
-    bool? favorite,
   }) {
     return ItemModel(
       id: id ?? this.id,
@@ -44,7 +41,6 @@ class ItemModel {
       rating: rating ?? this.rating,
       colorValue: colorValue ?? this.colorValue,
       iconCodePoint: iconCodePoint ?? this.iconCodePoint,
-      favorite: favorite ?? this.favorite,
     );
   }
 }

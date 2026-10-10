@@ -4,8 +4,9 @@ import '../models/item_model.dart';
 
 abstract interface class IItemsRepository {
   Future<List<ItemModel>> getItems();
-  Stream<List<ItemModel>> watchItems();
-  Future<ItemModel> toggleFavorite(int itemId);
+  Future<List<ItemModel>> getFavoriteItems();
+  Stream<List<ItemModel>> watchFavoriteItems();
+  Future<void> toggleFavorite(int itemId);
 
   void dispose();
 }
@@ -63,24 +64,30 @@ class ItemsRepository implements IItemsRepository {
       iconCodePoint: 0xe2c8,
     ),
   ];
-  final Set<int> _favoriteIds = {};
 
-  final _itemsStream = StreamController<List<ItemModel>>.broadcast();
-  List<ItemModel>? _lastItems;
+  final Set<int> _favoriteIds = {};
+  final _favoriteItemsStream = StreamController<List<ItemModel>>.broadcast();
+  List<ItemModel>? _lastFavoriteItems;
 
   @override
   Future<List<ItemModel>> getItems() async {
     await Future<void>.delayed(const Duration(milliseconds: 650));
-    return _emitItems();
+    return _items;
   }
 
   @override
-  Stream<List<ItemModel>> watchItems() {
-    return Stream.multi((subscriber) {
-      final lastItems = _lastItems;
-      if (lastItems != null) subscriber.add(lastItems);
+  Future<List<ItemModel>> getFavoriteItems() async {
+    await Future<void>.delayed(const Duration(milliseconds: 650));
+    return _emitFavoriteItems();
+  }
 
-      final subscription = _itemsStream.stream.listen(
+  @override
+  Stream<List<ItemModel>> watchFavoriteItems() {
+    return Stream.multi((subscriber) {
+      final lastFavoriteItems = _lastFavoriteItems;
+      if (lastFavoriteItems != null) subscriber.add(lastFavoriteItems);
+
+      final subscription = _favoriteItemsStream.stream.listen(
         subscriber.add,
         onError: subscriber.addError,
         onDone: subscriber.close,
@@ -90,31 +97,30 @@ class ItemsRepository implements IItemsRepository {
   }
 
   @override
-  Future<ItemModel> toggleFavorite(int itemId) async {
+  Future<void> toggleFavorite(int itemId) async {
     await Future.delayed(const Duration(milliseconds: 650));
     if (_favoriteIds.contains(itemId)) {
       _favoriteIds.remove(itemId);
     } else {
       _favoriteIds.add(itemId);
     }
-
-    return _emitItems()
-        .firstWhere((e) => e.id == itemId)
-        .copyWith(favorite: _favoriteIds.contains(itemId));
+    _emitFavoriteItems();
   }
 
-  List<ItemModel> _emitItems() {
-    final lastItems = _items
-        .map((e) => e.copyWith(favorite: _favoriteIds.contains(e.id)))
+  List<ItemModel> _emitFavoriteItems() {
+    final lastFavoriteItems = _items
+        .where((e) => _favoriteIds.contains(e.id))
         .toList();
 
-    _lastItems = lastItems;
-    if (!_itemsStream.isClosed) _itemsStream.add(lastItems);
-    return lastItems;
+    _lastFavoriteItems = lastFavoriteItems;
+    if (!_favoriteItemsStream.isClosed) {
+      _favoriteItemsStream.add(lastFavoriteItems);
+    }
+    return lastFavoriteItems;
   }
 
   @override
   void dispose() {
-    _itemsStream.close();
+    _favoriteItemsStream.close();
   }
 }

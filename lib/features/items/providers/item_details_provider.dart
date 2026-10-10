@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:test_task_flutter/core/provider/base_provider.dart';
 import 'package:test_task_flutter/features/items/models/item_model.dart';
 import 'package:test_task_flutter/features/items/providers/state/item_details_state.dart';
@@ -11,9 +13,27 @@ class ItemDetailsProvider extends BaseProvider<ItemDetailsState> {
   @override
   ItemDetailsState backedState;
   ItemDetailsState get state => backedState;
+  StreamSubscription? _favoriteItemsSubscription;
+
+  void watchFavoriteItems() {
+    _favoriteItemsSubscription = _repository.watchFavoriteItems().listen((
+      favoriteItems,
+    ) {
+      setState(backedState.copyWith(favoriteItems: favoriteItems));
+    });
+  }
+
+  void loadFavoriteItems() {
+    _repository.getFavoriteItems();
+  }
 
   Future<void> toggleFavorite() async {
-    final item = await _repository.toggleFavorite(state.item.id);
-    setState(backedState.copyWith(item: item));
+    await _repository.toggleFavorite(state.item.id);
+  }
+
+  @override
+  void dispose() {
+    _favoriteItemsSubscription?.cancel();
+    super.dispose();
   }
 }

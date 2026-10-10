@@ -31,6 +31,7 @@ void main() {
           home: Scaffold(
             body: ItemDetailsInfo(
               item: _item(rating),
+              isFavorite: false,
               color: const Color(0xFF7357A3),
               onFavoriteTap: () {},
             ),

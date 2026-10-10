@@ -5,11 +5,13 @@ class ItemDetailsInfo extends StatelessWidget {
   const ItemDetailsInfo({
     super.key,
     required this.item,
+    required this.isFavorite,
     required this.color,
     required this.onFavoriteTap,
   });
 
   final ItemModel item;
+  final bool isFavorite;
   final Color color;
   final Function() onFavoriteTap;
 
@@ -30,7 +32,12 @@ class ItemDetailsInfo extends StatelessWidget {
         const SizedBox(height: 8),
         _RatingLabel(item: item),
         const SizedBox(height: 24),
-        _PiceBlock(item: item, color: color, onFavoriteTap: onFavoriteTap),
+        _PiceBlock(
+          item: item,
+          isFavorite: isFavorite,
+          color: color,
+          onFavoriteTap: onFavoriteTap,
+        ),
         const SizedBox(height: 20),
         Divider(
           color: Theme.of(
@@ -165,11 +172,13 @@ class RatingStar extends StatelessWidget {
 class _PiceBlock extends StatelessWidget {
   const _PiceBlock({
     required this.item,
+    required this.isFavorite,
     required this.color,
     required this.onFavoriteTap,
   });
 
   final ItemModel item;
+  final bool isFavorite;
   final Color color;
   final Function() onFavoriteTap;
 
@@ -189,11 +198,11 @@ class _PiceBlock extends StatelessWidget {
         SizedBox(width: 8),
         FilledButton.icon(
           onPressed: onFavoriteTap,
-          icon: item.favorite
+          icon: isFavorite
               ? const Icon(Icons.favorite)
               : const Icon(Icons.favorite_border),
           label: Text(
-            item.favorite ? 'Видалити зі збережених' : 'Зберегти на потім',
+            isFavorite ? 'Видалити зі збережених' : 'Зберегти на потім',
           ),
           style: FilledButton.styleFrom(
             backgroundColor: color,
