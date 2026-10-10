@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:test_task_flutter/features/items/providers/state/items_state.dart';
+
 import '../models/item_model.dart';
 
 abstract interface class IItemsRepository {
-  Future<List<ItemModel>> getItems();
+  Future<List<ItemModel>> getItems(ItemsSort sort, String categoryFilter);
+  Future<List<String>> getCategories();
   Future<List<ItemModel>> getFavoriteItems();
   Stream<List<ItemModel>> watchFavoriteItems();
   Future<void> toggleFavorite(int itemId);
@@ -70,9 +73,30 @@ class ItemsRepository implements IItemsRepository {
   List<ItemModel>? _lastFavoriteItems;
 
   @override
-  Future<List<ItemModel>> getItems() async {
+  Future<List<ItemModel>> getItems(
+    ItemsSort sort,
+    String categoryFilter,
+  ) async {
     await Future<void>.delayed(const Duration(milliseconds: 650));
-    return _items;
+    final items = categoryFilter.isEmpty
+        ? _items.toList()
+        : _items.where((e) => e.category == categoryFilter).toList();
+
+    switch (sort) {
+      case ItemsSort.original:
+        items.sort((a, b) => a.id.compareTo(b.id));
+      case ItemsSort.title:
+        items.sort((a, b) => a.title.compareTo(b.title));
+      case ItemsSort.price:
+        items.sort((a, b) => a.price.compareTo(b.price));
+    }
+    return items;
+  }
+
+  @override
+  Future<List<String>> getCategories() async {
+    await Future.delayed(const Duration(milliseconds: 650));
+    return _items.map((e) => e.category).toSet().toList();
   }
 
   @override

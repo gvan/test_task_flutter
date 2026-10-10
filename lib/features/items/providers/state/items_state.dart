@@ -8,7 +8,9 @@ enum ItemsSort { original, title, price }
 class ItemsState {
   const ItemsState({
     required this.items,
+    required this.categories,
     required this.sort,
+    required this.categoryFilter,
     required this.isLoading,
     required this.hasLoaded,
     this.errorMessage,
@@ -16,20 +18,26 @@ class ItemsState {
 
   factory ItemsState.initial() => const ItemsState(
     items: [],
+    categories: [],
     sort: ItemsSort.original,
+    categoryFilter: '',
     isLoading: false,
     hasLoaded: false,
   );
 
   final List<ItemModel> items;
+  final List<String> categories;
   final ItemsSort sort;
+  final String categoryFilter;
   final bool isLoading;
   final bool hasLoaded;
   final String? errorMessage;
 
   ItemsState copyWith({
     List<ItemModel>? items,
+    List<String>? categories,
     ItemsSort? sort,
+    String? categoryFilter,
     bool? isLoading,
     bool? hasLoaded,
     String? errorMessage,
@@ -37,7 +45,9 @@ class ItemsState {
   }) {
     return ItemsState(
       items: items ?? this.items,
+      categories: categories ?? this.categories,
       sort: sort ?? this.sort,
+      categoryFilter: categoryFilter ?? this.categoryFilter,
       isLoading: isLoading ?? this.isLoading,
       hasLoaded: hasLoaded ?? this.hasLoaded,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,

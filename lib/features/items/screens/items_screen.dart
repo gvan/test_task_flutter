@@ -25,7 +25,9 @@ class _ItemsScreenState extends State<ItemsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ItemsProvider>().loadItems();
+      final provider = context.read<ItemsProvider>();
+      provider.loadItems();
+      provider.loadCategories();
     });
   }
 
@@ -33,6 +35,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<ItemsProvider>();
     final state = provider.state;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Каталог товарів'),
@@ -54,6 +57,11 @@ class _ItemsScreenState extends State<ItemsScreen> {
               PopupMenuItem(value: ItemsSort.title, child: Text('Назва')),
               PopupMenuItem(value: ItemsSort.price, child: Text('Ціна')),
             ],
+          ),
+          _FilterAction(
+            onFilter: provider.filterByCategory,
+            categoryFilter: state.categoryFilter,
+            categories: state.categories,
           ),
         ],
       ),
@@ -115,6 +123,47 @@ class _ItemsScreenState extends State<ItemsScreen> {
           child: FavoriteItemsScreen(),
         ),
       ),
+    );
+  }
+}
+
+class _FilterAction extends StatelessWidget {
+  const _FilterAction({
+    required this.categoryFilter,
+    required this.categories,
+    required this.onFilter,
+  });
+
+  final String categoryFilter;
+  final List<String> categories;
+  final Function(String) onFilter;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.filter_alt_outlined),
+      tooltip: 'Фільтрувати товари',
+      onSelected: onFilter,
+      itemBuilder: (menuContext) {
+        PopupMenuItem<String> buildRadioItem(String value, String title) {
+          return PopupMenuItem(
+            value: value,
+            padding: .zero,
+            child: IgnorePointer(
+              child: RadioGroup<String>(
+                groupValue: categoryFilter,
+                onChanged: (_) {},
+                child: RadioListTile<String>(value: value, title: Text(title)),
+              ),
+            ),
+          );
+        }
+
+        return [
+          buildRadioItem('', 'Всі категорії'),
+          for (final category in categories) buildRadioItem(category, category),
+        ];
+      },
     );
   }
 }

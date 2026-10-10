@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:test_task_flutter/core/provider/base_provider.dart';
 
-import '../models/item_model.dart';
 import '../repository/items_repository.dart';
 import 'state/items_state.dart';
 
@@ -18,7 +17,10 @@ class ItemsProvider extends BaseProvider<ItemsState> {
     if (backedState.isLoading) return;
     setState(backedState.copyWith(isLoading: true, clearError: true));
     try {
-      final items = await _repository.getItems();
+      final items = await _repository.getItems(
+        state.sort,
+        state.categoryFilter,
+      );
       setState(
         backedState.copyWith(
           items: items,
@@ -38,17 +40,20 @@ class ItemsProvider extends BaseProvider<ItemsState> {
     }
   }
 
-  void sortBy(ItemsSort sort) {
-    final items = List<ItemModel>.of(backedState.items);
-    switch (sort) {
-      case ItemsSort.original:
-        items.sort((a, b) => a.id.compareTo(b.id));
-      case ItemsSort.title:
-        items.sort((a, b) => a.title.compareTo(b.title));
-      case ItemsSort.price:
-        items.sort((a, b) => a.price.compareTo(b.price));
-    }
-    setState(backedState.copyWith(items: items, sort: sort));
+  Future<void> loadCategories() async {
+    try {
+      final categories = await _repository.getCategories();
+      setState(backedState.copyWith(categories: categories));
+    } catch (_) {}
   }
-  
+
+  void sortBy(ItemsSort sort) {
+    setState(backedState.copyWith(sort: sort));
+    loadItems();
+  }
+
+  void filterByCategory(String category) {
+    setState(backedState.copyWith(categoryFilter: category));
+    loadItems();
+  }
 }
