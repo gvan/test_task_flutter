@@ -4,6 +4,7 @@ import 'package:test_task_flutter/features/items/providers/favorite_items_provid
 import 'package:test_task_flutter/features/items/providers/item_details_provider.dart';
 import 'package:test_task_flutter/features/items/repository/items_repository.dart';
 import 'package:test_task_flutter/features/items/screens/favorite_items_screen.dart';
+import 'package:test_task_flutter/features/items/widgets/items_by_parameters_empty_view.dart';
 import 'package:test_task_flutter/features/items/widgets/items_search_field.dart';
 
 import '../models/item_model.dart';
@@ -41,10 +42,6 @@ class _ItemsScreenState extends State<ItemsScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<ItemsProvider>();
     final state = provider.state;
-    final parametersActivated =
-        state.sort != .original ||
-        state.categoryFilter.isNotEmpty ||
-        state.searchQuery.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -82,12 +79,10 @@ class _ItemsScreenState extends State<ItemsScreen> {
                   showSearch: _showSearch,
                   onSearch: provider.search,
                 ),
-                Expanded(
-                  child: _buildBody(state, provider, parametersActivated),
-                ),
+                Expanded(child: _buildBody(state, provider)),
               ],
             ),
-            if (parametersActivated)
+            if (state.parametersActivated)
               Positioned(
                 bottom: _bottomOffset,
                 right: 0,
@@ -105,11 +100,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
     );
   }
 
-  Widget _buildBody(
-    ItemsState state,
-    ItemsProvider provider,
-    bool parametersActivated,
-  ) {
+  Widget _buildBody(ItemsState state, ItemsProvider provider) {
     final items = state.items;
     if (state.isLoading && items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -119,6 +110,9 @@ class _ItemsScreenState extends State<ItemsScreen> {
         message: state.errorMessage!,
         onRetry: provider.loadItems,
       );
+    }
+    if (state.hasLoaded && items.isEmpty && state.parametersActivated) {
+      return const ItemsByParametersEmptyView();
     }
     if (state.hasLoaded && items.isEmpty) {
       return const ItemsEmptyView();
@@ -130,7 +124,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
           16,
           12,
           16,
-          parametersActivated
+          state.parametersActivated
               ? _bottomOffset * 2 + _buttonHeight
               : _bottomOffset,
         ),

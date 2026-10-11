@@ -36,6 +36,9 @@ class ItemsState {
   final bool hasLoaded;
   final String? errorMessage;
 
+  bool get parametersActivated =>
+      sort != .original || categoryFilter.isNotEmpty || searchQuery.isNotEmpty;
+
   ItemsState copyWith({
     List<ItemModel>? items,
     List<String>? categories,
