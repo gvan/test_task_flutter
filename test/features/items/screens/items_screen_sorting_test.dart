@@ -6,13 +6,6 @@ import 'package:test_task_flutter/features/items/widgets/app_bar_actions/sort_ac
 import '../utils/extensions.dart';
 import '../utils/pump_items_screen.dart';
 
-Future<void> _tapOnSortBy(WidgetTester tester, String option) async {
-  await tester.tap(find.byIcon(Icons.sort));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text(option));
-  await tester.pumpAndSettle();
-}
-
 void main() {
   group('ItemsScreen: сортування', () {
     testWidgets('сортування за початковим порядком', (tester) async {
@@ -47,4 +40,11 @@ void main() {
       expect(sortAction.initialValue, ItemsSort.price);
     });
   });
+}
+
+Future<void> _tapOnSortBy(WidgetTester tester, String option) async {
+  await tester.tap(find.byIcon(Icons.sort));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(option));
+  await tester.pumpAndSettle();
 }
