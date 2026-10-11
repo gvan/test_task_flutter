@@ -28,7 +28,10 @@ class ItemDetailsProvider extends BaseProvider<ItemDetailsState> {
   }
 
   Future<void> toggleFavorite() async {
+    if (backedState.isFavoriteLoading) return;
+    setState(backedState.copyWith(isFavoriteLoading: true));
     await _repository.toggleFavorite(state.item.id);
+    setState(backedState.copyWith(isFavoriteLoading: false));
   }
 
   @override

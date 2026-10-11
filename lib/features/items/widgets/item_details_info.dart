@@ -6,12 +6,14 @@ class ItemDetailsInfo extends StatelessWidget {
     super.key,
     required this.item,
     required this.isFavorite,
+    required this.isFavoriteLoading,
     required this.color,
     required this.onFavoriteTap,
   });
 
   final ItemModel item;
   final bool isFavorite;
+  final bool isFavoriteLoading;
   final Color color;
   final Function() onFavoriteTap;
 
@@ -32,9 +34,10 @@ class ItemDetailsInfo extends StatelessWidget {
         const SizedBox(height: 8),
         _RatingLabel(item: item),
         const SizedBox(height: 24),
-        _PiceBlock(
+        _PriceBlock(
           item: item,
           isFavorite: isFavorite,
+          isFavoriteLoading: isFavoriteLoading,
           color: color,
           onFavoriteTap: onFavoriteTap,
         ),
@@ -169,16 +172,18 @@ class RatingStar extends StatelessWidget {
   }
 }
 
-class _PiceBlock extends StatelessWidget {
-  const _PiceBlock({
+class _PriceBlock extends StatelessWidget {
+  const _PriceBlock({
     required this.item,
     required this.isFavorite,
+    required this.isFavoriteLoading,
     required this.color,
     required this.onFavoriteTap,
   });
 
   final ItemModel item;
   final bool isFavorite;
+  final bool isFavoriteLoading;
   final Color color;
   final Function() onFavoriteTap;
 
@@ -198,12 +203,19 @@ class _PiceBlock extends StatelessWidget {
         SizedBox(width: 8),
         FilledButton.icon(
           onPressed: onFavoriteTap,
-          icon: isFavorite
+          icon: isFavoriteLoading
+              ? SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : isFavorite
               ? const Icon(Icons.favorite)
               : const Icon(Icons.favorite_border),
-          label: Text(
-            isFavorite ? 'Видалити зі збережених' : 'Зберегти на потім',
-          ),
+          label: Text(isFavorite ? 'Збережено' : 'Зберегти на потім'),
           style: FilledButton.styleFrom(
             backgroundColor: color,
             minimumSize: const Size(0, 48),

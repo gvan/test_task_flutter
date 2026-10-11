@@ -39,6 +39,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     final details = ItemDetailsInfo(
       item: item,
       isFavorite: favoriteItems.any((e) => e.id == item.id),
+      isFavoriteLoading: provider.state.isFavoriteLoading,
       color: color,
       onFavoriteTap: () => provider.toggleFavorite(),
     );
