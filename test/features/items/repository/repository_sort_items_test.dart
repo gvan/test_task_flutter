@@ -1,14 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:test_task_flutter/features/items/models/item_model.dart';
-import 'package:test_task_flutter/features/items/providers/state/items_state.dart';
 import 'package:test_task_flutter/features/items/repository/items_repository.dart';
 
 import '../../../fakes/fake_items_data_source.dart';
+import '../utils/extension.dart';
 
-List<int> _idsFromItems(List<ItemModel> items) =>
-    items.map((e) => e.id).toList();
-
-ItemsRepository _createRepositoryWith(List<ItemModel> items) {
+IItemsRepository _createRepositoryWith(List<ItemModel> items) {
   final repository = ItemsRepository(
     dataSource: FakeItemsDataSource(items: items),
   );
@@ -17,19 +14,19 @@ ItemsRepository _createRepositoryWith(List<ItemModel> items) {
 }
 
 void main() {
-  late ItemsRepository repository;
+  late IItemsRepository repository;
 
   setUp(() => repository = ItemsRepository(dataSource: FakeItemsDataSource()));
   tearDown(() => repository.dispose());
 
   group('ItemsRepository.getItems(): сортування', () {
     test('сортування по id товару', () async {
-      final items = await repository.getItems(ItemsSort.original, '', '');
-      expect(_idsFromItems(items), [1, 2, 3, 4, 5]);
+      final items = await repository.getItems(.original, '', '');
+      expect(items.toIds(), [1, 2, 3, 4, 5]);
     });
 
     test('сортування за назвою товару', () async {
-      final items = await repository.getItems(ItemsSort.title, '', '');
+      final items = await repository.getItems(.title, '', '');
       expect(items.map((e) => e.title), [
         'Блокнот',
         'Настільна лампа',
@@ -40,7 +37,7 @@ void main() {
     });
 
     test('сорутвання за ціною', () async {
-      final items = await repository.getItems(ItemsSort.price, '', '');
+      final items = await repository.getItems(.price, '', '');
       expect(items.map((e) => e.price), [12.50, 29.95, 48.90, 64.40, 79.00]);
     });
 
@@ -60,25 +57,20 @@ void main() {
         ),
       ]);
 
-      final items = await repository.getItems(
-        ItemsSort.price,
-        'Канцелярія',
-        '',
-      );
+      final items = await repository.getItems(.price, 'Канцелярія', '');
 
-      expect(_idsFromItems(items), [6, 2]);
+      expect(items.toIds(), [6, 2]);
     });
 
     test('сортування по ціні + пошук', () async {
-      final items = await repository.getItems(ItemsSort.price, '', 'л');
-      expect(_idsFromItems(items), [2, 4, 1, 3]);
+      final items = await repository.getItems(.price, '', 'л');
+      expect(items.toIds(), [2, 4, 1, 3]);
     });
 
-    test('сортування не впливає на наступне сортування', () async {
-      await repository.getItems(ItemsSort.price, '', '');
-      final items = await repository.getItems(ItemsSort.original, '', '');
-
-      expect(_idsFromItems(items), [1, 2, 3, 4, 5]);
+    test('перше сортування не впливає на наступне сортування', () async {
+      await repository.getItems(.price, '', '');
+      final items = await repository.getItems(.original, '', '');
+      expect(items.toIds(), [1, 2, 3, 4, 5]);
     });
   });
 }
