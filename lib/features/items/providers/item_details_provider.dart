@@ -16,14 +16,13 @@ class ItemDetailsProvider extends BaseProvider<ItemDetailsState> {
   StreamSubscription? _favoriteItemsSubscription;
 
   void watchFavoriteItems() {
+    _favoriteItemsSubscription?.cancel();
     _favoriteItemsSubscription = _repository.watchFavoriteItems().listen((
       favoriteItems,
     ) {
       setState(backedState.copyWith(favoriteItems: favoriteItems));
     });
-  }
 
-  void loadFavoriteItems() {
     _repository.getFavoriteItems();
   }
 

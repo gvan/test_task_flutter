@@ -21,7 +21,6 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     super.initState();
     final provider = context.read<ItemDetailsProvider>();
     provider.watchFavoriteItems();
-    provider.loadFavoriteItems();
   }
 
   @override

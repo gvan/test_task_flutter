@@ -24,7 +24,6 @@ class _FavoriteItemsScreenState extends State<FavoriteItemsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<FavoriteItemsProvider>();
       provider.watchFavoriteItems();
-      provider.loadFavoriteItems();
     });
   }
 
@@ -48,7 +47,7 @@ class _FavoriteItemsScreenState extends State<FavoriteItemsScreen> {
     if (state.errorMessage != null && items.isEmpty) {
       return ItemsErrorView(
         message: state.errorMessage!,
-        onRetry: provider.loadFavoriteItems,
+        onRetry: provider.watchFavoriteItems,
       );
     }
 
