@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:test_task_flutter/core/provider/base_provider.dart';
+import 'package:test_task_flutter/features/items/models/item_model.dart';
 
 import '../repository/items_repository.dart';
 import 'state/items_state.dart';
@@ -12,33 +13,41 @@ class ItemsProvider extends BaseProvider<ItemsState> {
   @override
   ItemsState backedState = ItemsState.initial();
   ItemsState get state => backedState;
+  StreamSubscription<List<ItemModel>>? _loadSubscription;
 
   Future<void> loadItems() async {
-    if (backedState.isLoading) return;
+    _loadSubscription?.cancel();
     setState(backedState.copyWith(isLoading: true, clearError: true));
-    try {
-      final items = await _repository.getItems(
-        state.sort,
-        state.categoryFilter,
-        state.searchQuery.trim(),
-      );
-      setState(
-        backedState.copyWith(
-          items: items,
-          isLoading: false,
-          hasLoaded: true,
-          clearError: true,
-        ),
-      );
-    } catch (error) {
-      setState(
-        backedState.copyWith(
-          isLoading: false,
-          hasLoaded: true,
-          errorMessage: error.toString(),
-        ),
-      );
-    }
+    _loadSubscription = _repository
+        .getItems(state.sort, state.categoryFilter, state.searchQuery.trim())
+        .asStream()
+        .listen(
+          (items) {
+            setState(
+              backedState.copyWith(
+                items: items,
+                isLoading: false,
+                hasLoaded: true,
+                clearError: true,
+              ),
+            );
+          },
+          onError: (Object error) {
+            setState(
+              backedState.copyWith(
+                isLoading: false,
+                hasLoaded: true,
+                errorMessage: error.toString(),
+              ),
+            );
+          },
+        );
+  }
+
+  @override
+  void dispose() {
+    _loadSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> loadCategories() async {
