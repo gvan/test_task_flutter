@@ -5,14 +5,6 @@ import 'package:test_task_flutter/features/items/repository/items_repository.dar
 import '../../../fakes/fake_items_data_source.dart';
 import '../utils/extension.dart';
 
-IItemsRepository _createRepositoryWith(List<ItemModel> items) {
-  final repository = ItemsRepository(
-    dataSource: FakeItemsDataSource(items: items),
-  );
-  addTearDown(repository.dispose);
-  return repository;
-}
-
 void main() {
   late IItemsRepository repository;
 
@@ -43,19 +35,24 @@ void main() {
 
     test('сортування по ціні + фільтрація по категорії', () async {
       // Add new product in the same category
-      final repository = _createRepositoryWith([
-        ...testItems,
-        const ItemModel(
-          id: 6,
-          title: 'Ручка',
-          description: 'Кулькова ручка.',
-          category: 'Канцелярія',
-          price: 2.00,
-          rating: 3.9,
-          colorValue: 0xFF557A46,
-          iconCodePoint: 0xe0ef,
+      final repository = ItemsRepository(
+        dataSource: FakeItemsDataSource(
+          items: [
+            ...testItems,
+            const ItemModel(
+              id: 6,
+              title: 'Ручка',
+              description: 'Кулькова ручка.',
+              category: 'Канцелярія',
+              price: 2.00,
+              rating: 3.9,
+              colorValue: 0xFF557A46,
+              iconCodePoint: 0xe0ef,
+            ),
+          ],
         ),
-      ]);
+      );
+      addTearDown(repository.dispose);
 
       final items = await repository.getItems(.price, 'Канцелярія', '');
 
@@ -71,6 +68,42 @@ void main() {
       await repository.getItems(.price, '', '');
       final items = await repository.getItems(.original, '', '');
       expect(items.toIds(), [1, 2, 3, 4, 5]);
+    });
+  });
+
+  group('ItemsRepository.getItems(): фільтр по категорії', () {
+    test('фільтр по категорії', () async {
+      final items = await repository.getItems(.original, 'Канцелярія', '');
+      expect(items.toIds(), [2]);
+    });
+
+    test('фільтр по категорії + пошук', () async {
+      final items = await repository.getItems(.original, 'Аксесуари', 'a');
+      expect(items.toIds(), [4]);
+    });
+
+    test('перший фільтр не впливає на наступний фільтр', () async {
+      await repository.getItems(.original, 'Карцелярія', '');
+      final items = await repository.getItems(.original, 'Електроніка', '');
+      expect(items.toIds(), [3]);
+    });
+  });
+
+  group('ItemsRepository.getItems(): пошук по назві', () {
+    test('пошук по назві', () async {
+      final items = await repository.getItems(.original, '', 'лампа');
+      expect(items.toIds(), [1]);
+    });
+
+    test('пошук не залежить від регістру', () async {
+      final items = await repository.getItems(.original, '', 'БлОкНоТ');
+      expect(items.toIds(), [2]);
+    });
+
+    test('перший пошук не впливає на наступний пошук', () async {
+      await repository.getItems(.original, '', 'лампа');
+      final items = await repository.getItems(.original, '', 'колонка');
+      expect(items.toIds(), [3]);
     });
   });
 }
