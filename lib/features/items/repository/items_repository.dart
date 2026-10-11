@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:test_task_flutter/features/items/data_source/items_data_source.dart';
 import 'package:test_task_flutter/features/items/providers/state/items_state.dart';
 
 import '../models/item_model.dart';
@@ -18,59 +19,9 @@ abstract interface class IItemsRepository {
 }
 
 class ItemsRepository implements IItemsRepository {
-  final List<ItemModel> _items = const [
-    ItemModel(
-      id: 1,
-      title: 'Настільна лампа',
-      description: 'Компактна атмосферна лампа з регулюванням теплого світла.',
-      category: 'Освітлення',
-      price: 48.90,
-      rating: 4.8,
-      colorValue: 0xFF7357A3,
-      iconCodePoint: 0xe37c,
-    ),
-    ItemModel(
-      id: 2,
-      title: 'Блокнот',
-      description: 'Міцний нотатник для ідей, ескізів і планів.',
-      category: 'Канцелярія',
-      price: 12.50,
-      rating: 4.3,
-      colorValue: 0xFF557A46,
-      iconCodePoint: 0xe0ef,
-    ),
-    ItemModel(
-      id: 3,
-      title: 'Портативна колонка',
-      description: 'Портативна бездротова колонка в мінімалістичному корпусі.',
-      category: 'Електроніка',
-      price: 79.00,
-      rating: 4.6,
-      colorValue: 0xFFB5533C,
-      iconCodePoint: 0xe050,
-    ),
-    ItemModel(
-      id: 4,
-      title: 'Термопляшка',
-      description: 'Термостійка сталева пляшка для щоденного використання.',
-      category: 'Аксесуари',
-      price: 29.95,
-      rating: 4.5,
-      colorValue: 0xFF247D81,
-      iconCodePoint: 0xe6dd,
-    ),
-    ItemModel(
-      id: 5,
-      title: 'Рюкзак',
-      description: 'Легкий рюкзак із м’яким відділенням для ноутбука.',
-      category: 'Сумки та рюкзаки',
-      price: 64.40,
-      rating: 4.7,
-      colorValue: 0xFF9A6B35,
-      iconCodePoint: 0xe2c8,
-    ),
-  ];
+  ItemsRepository({required this._dataSource});
 
+  final IItemsDataSource _dataSource;
   final Set<int> _favoriteIds = {};
   final _favoriteItemsStream = StreamController<List<ItemModel>>.broadcast();
   List<ItemModel>? _lastFavoriteItems;
@@ -82,9 +33,10 @@ class ItemsRepository implements IItemsRepository {
     String searchQuery,
   ) async {
     await Future<void>.delayed(const Duration(milliseconds: 650));
+    final allItems = await _dataSource.getItems();
     final items = categoryFilter.isEmpty && searchQuery.isEmpty
-        ? _items.toList()
-        : _items
+        ? allItems.toList()
+        : allItems
               .where(
                 (e) =>
                     (categoryFilter.isNotEmpty &&
@@ -110,7 +62,7 @@ class ItemsRepository implements IItemsRepository {
   @override
   Future<List<String>> getCategories() async {
     await Future.delayed(const Duration(milliseconds: 650));
-    return _items.map((e) => e.category).toSet().toList();
+    return _dataSource.getCategories();
   }
 
   @override
@@ -138,16 +90,17 @@ class ItemsRepository implements IItemsRepository {
     } else {
       _favoriteIds.add(itemId);
     }
-    _emitFavoriteItems();
+    await _emitFavoriteItems();
   }
 
   Future<void> _loadFavoriteItems() async {
     await Future.delayed(const Duration(milliseconds: 650));
-    _emitFavoriteItems();
+    await _emitFavoriteItems();
   }
 
-  List<ItemModel> _emitFavoriteItems() {
-    final lastFavoriteItems = _items
+  Future<void> _emitFavoriteItems() async {
+    final items = await _dataSource.getItems();
+    final lastFavoriteItems = items
         .where((e) => _favoriteIds.contains(e.id))
         .toList();
 
@@ -155,7 +108,6 @@ class ItemsRepository implements IItemsRepository {
     if (!_favoriteItemsStream.isClosed) {
       _favoriteItemsStream.add(lastFavoriteItems);
     }
-    return lastFavoriteItems;
   }
 
   @override
