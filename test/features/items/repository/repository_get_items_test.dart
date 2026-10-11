@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:test_task_flutter/features/items/repository/items_repository.dart';
 
 import '../../../fakes/fake_items_data_source.dart';
-import '../utils/extension.dart';
+import '../utils/extensions.dart';
 
 void main() {
   late IItemsRepository repository;
