@@ -22,6 +22,9 @@ class ItemsScreen extends StatefulWidget {
 }
 
 class _ItemsScreenState extends State<ItemsScreen> {
+  static const _bottomOffset = 24.0;
+  static const _buttonHeight = 56.0;
+
   var _showSearch = false;
 
   @override
@@ -38,6 +41,10 @@ class _ItemsScreenState extends State<ItemsScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<ItemsProvider>();
     final state = provider.state;
+    final parametersActivated =
+        state.sort != .original ||
+        state.categoryFilter.isNotEmpty ||
+        state.searchQuery.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -47,20 +54,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
             onPressed: _openFavoriteItems,
             icon: const Icon(Icons.favorite_outline),
           ),
-          PopupMenuButton<ItemsSort>(
-            initialValue: state.sort,
-            onSelected: provider.sortBy,
-            icon: const Icon(Icons.sort),
-            tooltip: 'Сортувати товари',
-            itemBuilder: (_) => const [
-              PopupMenuItem(
-                value: ItemsSort.original,
-                child: Text('Початковий порядок'),
-              ),
-              PopupMenuItem(value: ItemsSort.title, child: Text('Назва')),
-              PopupMenuItem(value: ItemsSort.price, child: Text('Ціна')),
-            ],
-          ),
+          _SortAction(initialValue: state.sort, onSelected: provider.sortBy),
           _FilterAction(
             onFilter: provider.filterByCategory,
             categoryFilter: state.categoryFilter,
@@ -80,20 +74,42 @@ class _ItemsScreenState extends State<ItemsScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            ItemsSearchField(
-              showSearch: _showSearch,
-              onSearch: provider.search,
+            Column(
+              children: [
+                ItemsSearchField(
+                  showSearch: _showSearch,
+                  onSearch: provider.search,
+                ),
+                Expanded(
+                  child: _buildBody(state, provider, parametersActivated),
+                ),
+              ],
             ),
-            Expanded(child: _buildBody(state, provider)),
+            if (parametersActivated)
+              Positioned(
+                bottom: _bottomOffset,
+                right: 0,
+                left: 0,
+                child: Center(
+                  child: _ResetParametersButton(
+                    buttonHeight: _buttonHeight,
+                    onTap: provider.clearParameters,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBody(ItemsState state, ItemsProvider provider) {
+  Widget _buildBody(
+    ItemsState state,
+    ItemsProvider provider,
+    bool parametersActivated,
+  ) {
     final items = state.items;
     if (state.isLoading && items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -110,7 +126,14 @@ class _ItemsScreenState extends State<ItemsScreen> {
     return RefreshIndicator(
       onRefresh: provider.loadItems,
       child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          12,
+          16,
+          parametersActivated
+              ? _bottomOffset * 2 + _buttonHeight
+              : _bottomOffset,
+        ),
         itemCount: items.length,
         separatorBuilder: (_, _) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
@@ -147,6 +170,55 @@ class _ItemsScreenState extends State<ItemsScreen> {
           child: FavoriteItemsScreen(),
         ),
       ),
+    );
+  }
+}
+
+class _ResetParametersButton extends StatelessWidget {
+  const _ResetParametersButton({
+    required this.buttonHeight,
+    required this.onTap,
+  });
+
+  final double buttonHeight;
+  final Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        minimumSize: Size(0, buttonHeight),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+      ),
+      child: const Text('Скинути параметри'),
+    );
+  }
+}
+
+class _SortAction extends StatelessWidget {
+  const _SortAction({required this.initialValue, required this.onSelected});
+
+  final ItemsSort initialValue;
+  final Function(ItemsSort) onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<ItemsSort>(
+      initialValue: initialValue,
+      onSelected: onSelected,
+      icon: const Icon(Icons.sort),
+      tooltip: 'Сортувати товари',
+      itemBuilder: (_) => const [
+        PopupMenuItem(
+          value: ItemsSort.original,
+          child: Text('Початковий порядок'),
+        ),
+        PopupMenuItem(value: ItemsSort.title, child: Text('Назва')),
+        PopupMenuItem(value: ItemsSort.price, child: Text('Ціна')),
+      ],
     );
   }
 }

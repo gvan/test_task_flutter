@@ -62,4 +62,15 @@ class ItemsProvider extends BaseProvider<ItemsState> {
     setState(backedState.copyWith(searchQuery: query));
     loadItems();
   }
+
+  void clearParameters() {
+    setState(
+      backedState.copyWith(
+        sort: .original,
+        categoryFilter: '',
+        searchQuery: '',
+      ),
+    );
+    loadItems();
+  }
 }
