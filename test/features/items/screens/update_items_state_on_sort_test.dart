@@ -7,6 +7,8 @@ import 'package:test_task_flutter/features/items/repository/items_repository.dar
 import 'package:test_task_flutter/features/items/screens/item_details_screen.dart';
 import 'package:test_task_flutter/features/items/screens/items_screen.dart';
 
+import '../../../fakes/fake_items_data_source.dart';
+
 void main() {
   testWidgets(
     'Після сортування товарів оновлюються стейти айтемів в списку і вікривається правильний товар по кліку',
@@ -15,7 +17,7 @@ void main() {
         MultiProvider(
           providers: [
             Provider<IItemsRepository>(
-              create: (_) => ItemsRepository(),
+              create: (_) => ItemsRepository(dataSource: FakeItemsDataSource()),
               dispose: (_, repository) => repository.dispose(),
             ),
             ChangeNotifierProvider(

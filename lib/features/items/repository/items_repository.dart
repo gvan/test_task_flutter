@@ -32,7 +32,6 @@ class ItemsRepository implements IItemsRepository {
     String categoryFilter,
     String searchQuery,
   ) async {
-    await Future<void>.delayed(const Duration(milliseconds: 650));
     final allItems = await _dataSource.getItems();
     final items = categoryFilter.isEmpty && searchQuery.isEmpty
         ? allItems.toList()
@@ -61,7 +60,6 @@ class ItemsRepository implements IItemsRepository {
 
   @override
   Future<List<String>> getCategories() async {
-    await Future.delayed(const Duration(milliseconds: 650));
     return _dataSource.getCategories();
   }
 
@@ -94,7 +92,6 @@ class ItemsRepository implements IItemsRepository {
   }
 
   Future<void> _loadFavoriteItems() async {
-    await Future.delayed(const Duration(milliseconds: 650));
     await _emitFavoriteItems();
   }
 

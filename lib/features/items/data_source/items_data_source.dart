@@ -61,11 +61,13 @@ class ItemsDataSource implements IItemsDataSource {
 
   @override
   Future<List<String>> getCategories() async {
-    return _items.map((e) => e.category).toList();
+    await Future.delayed(const Duration(milliseconds: 650));
+    return _items.map((e) => e.category).toSet().toList();
   }
 
   @override
   Future<List<ItemModel>> getItems() async {
+    await Future.delayed(const Duration(milliseconds: 650));
     return _items;
   }
 }
