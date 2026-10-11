@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:test_task_flutter/features/items/models/item_model.dart';
 import 'package:test_task_flutter/features/items/repository/items_repository.dart';
 
 import '../../../fakes/fake_items_data_source.dart';
@@ -19,38 +18,18 @@ void main() {
 
     test('сортування за назвою товару', () async {
       final items = await repository.getItems(.title, '', '');
-      expect(items.map((e) => e.title), [
-        'Блокнот',
-        'Настільна лампа',
-        'Портативна колонка',
-        'Рюкзак',
-        'Термопляшка',
-      ]);
+      expect(items.toIds(), [2, 1, 3, 5, 4]);
     });
 
     test('сорутвання за ціною', () async {
       final items = await repository.getItems(.price, '', '');
-      expect(items.map((e) => e.price), [12.50, 29.95, 48.90, 64.40, 79.00]);
+      expect(items.toIds(), [2, 4, 1, 5, 3]);
     });
 
     test('сортування по ціні + фільтрація по категорії', () async {
       // Add new product in the same category
       final repository = ItemsRepository(
-        dataSource: FakeItemsDataSource(
-          items: [
-            ...testItems,
-            const ItemModel(
-              id: 6,
-              title: 'Ручка',
-              description: 'Кулькова ручка.',
-              category: 'Канцелярія',
-              price: 2.00,
-              rating: 3.9,
-              colorValue: 0xFF557A46,
-              iconCodePoint: 0xe0ef,
-            ),
-          ],
-        ),
+        dataSource: FakeItemsDataSource(items: [...testItems, extraItem]),
       );
       addTearDown(repository.dispose);
 

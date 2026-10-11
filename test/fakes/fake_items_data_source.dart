@@ -54,6 +54,17 @@ const testItems = [
   ),
 ];
 
+const extraItem = ItemModel(
+  id: 6,
+  title: 'Ручка',
+  description: 'Кулькова ручка.',
+  category: 'Канцелярія',
+  price: 2.00,
+  rating: 3.9,
+  colorValue: 0xFF557A46,
+  iconCodePoint: 0xe0ef,
+);
+
 class FakeItemsDataSource implements IItemsDataSource {
   FakeItemsDataSource({this.items = testItems});
 

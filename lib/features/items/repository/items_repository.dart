@@ -91,6 +91,11 @@ class ItemsRepository implements IItemsRepository {
     await _emitFavoriteItems();
   }
 
+  @override
+  void dispose() {
+    _favoriteItemsStream.close();
+  }
+
   Future<void> _emitFavoriteItems() async {
     final items = await _dataSource.getItems();
     final lastFavoriteItems = items
@@ -102,10 +107,5 @@ class ItemsRepository implements IItemsRepository {
     if (!_favoriteItemsStream.isClosed) {
       _favoriteItemsStream.add(lastFavoriteItems);
     }
-  }
-
-  @override
-  void dispose() {
-    _favoriteItemsStream.close();
   }
 }
