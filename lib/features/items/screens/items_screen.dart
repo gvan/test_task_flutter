@@ -4,7 +4,10 @@ import 'package:test_task_flutter/features/items/providers/favorite_items_provid
 import 'package:test_task_flutter/features/items/providers/item_details_provider.dart';
 import 'package:test_task_flutter/features/items/repository/items_repository.dart';
 import 'package:test_task_flutter/features/items/screens/favorite_items_screen.dart';
+import 'package:test_task_flutter/features/items/widgets/app_bar_actions/filter_action.dart';
+import 'package:test_task_flutter/features/items/widgets/app_bar_actions/sort_action.dart';
 import 'package:test_task_flutter/features/items/widgets/items_search_field.dart';
+import 'package:test_task_flutter/features/items/widgets/reset_parameters_button.dart';
 
 import '../models/item_model.dart';
 import '../providers/items_provider.dart';
@@ -50,8 +53,8 @@ class _ItemsScreenState extends State<ItemsScreen> {
             onPressed: _openFavoriteItems,
             icon: const Icon(Icons.favorite_outline),
           ),
-          _SortAction(initialValue: state.sort, onSelected: provider.sortBy),
-          _FilterAction(
+          SortAction(initialValue: state.sort, onSelected: provider.sortBy),
+          FilterAction(
             onFilter: provider.filterByCategory,
             categoryFilter: state.categoryFilter,
             categories: state.categories,
@@ -88,7 +91,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                 right: 0,
                 left: 0,
                 child: Center(
-                  child: _ResetParametersButton(
+                  child: ResetParametersButton(
                     buttonHeight: _buttonHeight,
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
@@ -167,96 +170,6 @@ class _ItemsScreenState extends State<ItemsScreen> {
           child: FavoriteItemsScreen(),
         ),
       ),
-    );
-  }
-}
-
-class _ResetParametersButton extends StatelessWidget {
-  const _ResetParametersButton({
-    required this.buttonHeight,
-    required this.onTap,
-  });
-
-  final double buttonHeight;
-  final Function() onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onTap,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        minimumSize: Size(0, buttonHeight),
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-      ),
-      child: const Text('Скинути параметри'),
-    );
-  }
-}
-
-class _SortAction extends StatelessWidget {
-  const _SortAction({required this.initialValue, required this.onSelected});
-
-  final ItemsSort initialValue;
-  final Function(ItemsSort) onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return PopupMenuButton<ItemsSort>(
-      initialValue: initialValue,
-      onSelected: onSelected,
-      icon: const Icon(Icons.sort),
-      tooltip: 'Сортувати товари',
-      itemBuilder: (_) => const [
-        PopupMenuItem(
-          value: ItemsSort.original,
-          child: Text('Початковий порядок'),
-        ),
-        PopupMenuItem(value: ItemsSort.title, child: Text('Назва')),
-        PopupMenuItem(value: ItemsSort.price, child: Text('Ціна')),
-      ],
-    );
-  }
-}
-
-class _FilterAction extends StatelessWidget {
-  const _FilterAction({
-    required this.categoryFilter,
-    required this.categories,
-    required this.onFilter,
-  });
-
-  final String categoryFilter;
-  final List<String> categories;
-  final Function(String) onFilter;
-
-  @override
-  Widget build(BuildContext context) {
-    return PopupMenuButton<String>(
-      icon: const Icon(Icons.filter_alt_outlined),
-      tooltip: 'Фільтрувати товари',
-      onSelected: onFilter,
-      itemBuilder: (menuContext) {
-        PopupMenuItem<String> buildRadioItem(String value, String title) {
-          return PopupMenuItem(
-            value: value,
-            padding: .zero,
-            child: IgnorePointer(
-              child: RadioGroup<String>(
-                groupValue: categoryFilter,
-                onChanged: (_) {},
-                child: RadioListTile<String>(value: value, title: Text(title)),
-              ),
-            ),
-          );
-        }
-
-        return [
-          buildRadioItem('', 'Всі категорії'),
-          for (final category in categories) buildRadioItem(category, category),
-        ];
-      },
     );
   }
 }
