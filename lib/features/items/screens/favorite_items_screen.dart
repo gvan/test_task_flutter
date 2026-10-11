@@ -53,7 +53,7 @@ class _FavoriteItemsScreenState extends State<FavoriteItemsScreen> {
     }
 
     if (state.hasLoaded && items.isEmpty) {
-      return const ItemsEmptyView();
+      return ItemsEmptyView.favorite();
     }
 
     return ListView.separated(
