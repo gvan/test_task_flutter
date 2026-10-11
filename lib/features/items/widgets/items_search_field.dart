@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 class ItemsSearchField extends StatefulWidget {
   const ItemsSearchField({
     super.key,
+    required this.searchQuery,
     required this.showSearch,
     required this.onSearch,
   });
 
+  final String searchQuery;
   final bool showSearch;
   final Function(String) onSearch;
 
@@ -18,7 +20,7 @@ class ItemsSearchField extends StatefulWidget {
 
 class _ItemsSearchFieldState extends State<ItemsSearchField> {
   var _searchEmpty = true;
-  TextEditingController? _searchController;
+  late TextEditingController _searchController;
   Timer? _debounce;
 
   @override
@@ -28,8 +30,19 @@ class _ItemsSearchFieldState extends State<ItemsSearchField> {
   }
 
   @override
+  void didUpdateWidget(covariant ItemsSearchField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.searchQuery != oldWidget.searchQuery &&
+        widget.searchQuery != _searchController.text) {
+          _debounce?.cancel();
+          _searchController.text = widget.searchQuery;
+          _searchEmpty = widget.searchQuery.trim().isEmpty;
+        }
+  }
+
+  @override
   void dispose() {
-    _searchController?.dispose();
+    _searchController.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -82,7 +95,7 @@ class _ItemsSearchFieldState extends State<ItemsSearchField> {
                   if (!_searchEmpty)
                     IconButton(
                       onPressed: () {
-                        _searchController?.clear();
+                        _searchController.clear();
                         widget.onSearch('');
                         setState(() {
                           _searchEmpty = true;

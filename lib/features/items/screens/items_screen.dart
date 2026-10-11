@@ -76,6 +76,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
             Column(
               children: [
                 ItemsSearchField(
+                  searchQuery: state.searchQuery,
                   showSearch: _showSearch,
                   onSearch: provider.search,
                 ),
@@ -90,7 +91,10 @@ class _ItemsScreenState extends State<ItemsScreen> {
                 child: Center(
                   child: _ResetParametersButton(
                     buttonHeight: _buttonHeight,
-                    onTap: provider.clearParameters,
+                    onTap: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      provider.clearParameters();
+                    },
                   ),
                 ),
               ),
