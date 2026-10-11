@@ -76,7 +76,7 @@ class ItemsRepository implements IItemsRepository {
       final lastFavoriteItems = _lastFavoriteItems;
       if (lastFavoriteItems != null) subscriber.add(lastFavoriteItems);
 
-      _loadFavoriteItems().catchError(subscriber.addError);
+      _emitFavoriteItems().catchError(subscriber.addError);
     });
   }
 
@@ -91,15 +91,12 @@ class ItemsRepository implements IItemsRepository {
     await _emitFavoriteItems();
   }
 
-  Future<void> _loadFavoriteItems() async {
-    await _emitFavoriteItems();
-  }
-
   Future<void> _emitFavoriteItems() async {
     final items = await _dataSource.getItems();
     final lastFavoriteItems = items
         .where((e) => _favoriteIds.contains(e.id))
         .toList();
+    lastFavoriteItems.sort((a, b) => a.id.compareTo(b.id));
 
     _lastFavoriteItems = lastFavoriteItems;
     if (!_favoriteItemsStream.isClosed) {
