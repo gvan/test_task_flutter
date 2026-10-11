@@ -215,7 +215,11 @@ class _PriceBlock extends StatelessWidget {
               : isFavorite
               ? const Icon(Icons.favorite)
               : const Icon(Icons.favorite_border),
-          label: Text(isFavorite ? 'Збережено' : 'Зберегти на потім'),
+          label: AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            child: Text(isFavorite ? 'Збережено' : 'Зберегти на потім'),
+          ),
           style: FilledButton.styleFrom(
             backgroundColor: color,
             minimumSize: const Size(0, 48),
