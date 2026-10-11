@@ -14,8 +14,8 @@ class FavoriteItemsProvider extends BaseProvider<FavoriteItemsState> {
   StreamSubscription? _itemsSubscription;
 
   void watchFavoriteItems() {
-    setState(backedState.copyWith(isLoading: true, clearError: true));
     _itemsSubscription?.cancel();
+    setState(backedState.copyWith(isLoading: true, clearError: true));
     _itemsSubscription = _repository.watchFavoriteItems().listen(
       (favoriteItems) {
         setState(
