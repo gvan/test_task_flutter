@@ -68,6 +68,9 @@ class _ItemsScreenState extends State<ItemsScreen> {
           ),
           IconButton(
             onPressed: () {
+              if (_showSearch) {
+                provider.search('');
+              }
               setState(() {
                 _showSearch = !_showSearch;
               });
@@ -79,11 +82,10 @@ class _ItemsScreenState extends State<ItemsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            if (_showSearch)
-              Padding(
-                padding: .fromLTRB(16, 8, 16, 8),
-                child: ItemsSearchField(onSearch: provider.search),
-              ),
+            ItemsSearchField(
+              showSearch: _showSearch,
+              onSearch: provider.search,
+            ),
             Expanded(child: _buildBody(state, provider)),
           ],
         ),
