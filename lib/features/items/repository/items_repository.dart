@@ -11,7 +11,6 @@ abstract interface class IItemsRepository {
     String searchQuery,
   );
   Future<List<String>> getCategories();
-  Future<List<ItemModel>> getFavoriteItems();
   Stream<List<ItemModel>> watchFavoriteItems();
   Future<void> toggleFavorite(int itemId);
 
@@ -115,23 +114,19 @@ class ItemsRepository implements IItemsRepository {
   }
 
   @override
-  Future<List<ItemModel>> getFavoriteItems() async {
-    await Future<void>.delayed(const Duration(milliseconds: 650));
-    return _emitFavoriteItems();
-  }
-
-  @override
   Stream<List<ItemModel>> watchFavoriteItems() {
-    return Stream.multi((subscriber) {
-      final lastFavoriteItems = _lastFavoriteItems;
-      if (lastFavoriteItems != null) subscriber.add(lastFavoriteItems);
-
+    return Stream.multi((subscriber) async {
       final subscription = _favoriteItemsStream.stream.listen(
         subscriber.add,
         onError: subscriber.addError,
         onDone: subscriber.close,
       );
       subscriber.onCancel = subscription.cancel;
+
+      final lastFavoriteItems = _lastFavoriteItems;
+      if (lastFavoriteItems != null) subscriber.add(lastFavoriteItems);
+
+      _loadFavoriteItems().catchError(subscriber.addError);
     });
   }
 
@@ -143,6 +138,11 @@ class ItemsRepository implements IItemsRepository {
     } else {
       _favoriteIds.add(itemId);
     }
+    _emitFavoriteItems();
+  }
+
+  Future<void> _loadFavoriteItems() async {
+    await Future.delayed(const Duration(milliseconds: 650));
     _emitFavoriteItems();
   }
 

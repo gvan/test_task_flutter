@@ -22,8 +22,6 @@ class ItemDetailsProvider extends BaseProvider<ItemDetailsState> {
     ) {
       setState(backedState.copyWith(favoriteItems: favoriteItems));
     });
-
-    _repository.getFavoriteItems();
   }
 
   Future<void> toggleFavorite() async {
