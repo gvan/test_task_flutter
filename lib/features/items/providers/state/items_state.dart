@@ -11,6 +11,7 @@ class ItemsState {
     required this.categories,
     required this.sort,
     required this.categoryFilter,
+    required this.searchQuery,
     required this.isLoading,
     required this.hasLoaded,
     this.errorMessage,
@@ -21,6 +22,7 @@ class ItemsState {
     categories: [],
     sort: ItemsSort.original,
     categoryFilter: '',
+    searchQuery: '',
     isLoading: false,
     hasLoaded: false,
   );
@@ -29,6 +31,7 @@ class ItemsState {
   final List<String> categories;
   final ItemsSort sort;
   final String categoryFilter;
+  final String searchQuery;
   final bool isLoading;
   final bool hasLoaded;
   final String? errorMessage;
@@ -38,6 +41,7 @@ class ItemsState {
     List<String>? categories,
     ItemsSort? sort,
     String? categoryFilter,
+    String? searchQuery,
     bool? isLoading,
     bool? hasLoaded,
     String? errorMessage,
@@ -48,6 +52,7 @@ class ItemsState {
       categories: categories ?? this.categories,
       sort: sort ?? this.sort,
       categoryFilter: categoryFilter ?? this.categoryFilter,
+      searchQuery: searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
       hasLoaded: hasLoaded ?? this.hasLoaded,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,

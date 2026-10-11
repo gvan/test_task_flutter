@@ -5,7 +5,11 @@ import 'package:test_task_flutter/features/items/providers/state/items_state.dar
 import '../models/item_model.dart';
 
 abstract interface class IItemsRepository {
-  Future<List<ItemModel>> getItems(ItemsSort sort, String categoryFilter);
+  Future<List<ItemModel>> getItems(
+    ItemsSort sort,
+    String categoryFilter,
+    String searchQuery,
+  );
   Future<List<String>> getCategories();
   Future<List<ItemModel>> getFavoriteItems();
   Stream<List<ItemModel>> watchFavoriteItems();
@@ -76,11 +80,22 @@ class ItemsRepository implements IItemsRepository {
   Future<List<ItemModel>> getItems(
     ItemsSort sort,
     String categoryFilter,
+    String searchQuery,
   ) async {
     await Future<void>.delayed(const Duration(milliseconds: 650));
-    final items = categoryFilter.isEmpty
+    final items = categoryFilter.isEmpty && searchQuery.isEmpty
         ? _items.toList()
-        : _items.where((e) => e.category == categoryFilter).toList();
+        : _items
+              .where(
+                (e) =>
+                    (categoryFilter.isNotEmpty &&
+                        e.category == categoryFilter) ||
+                    (searchQuery.isNotEmpty &&
+                        e.title.toLowerCase().contains(
+                          searchQuery.toLowerCase(),
+                        )),
+              )
+              .toList();
 
     switch (sort) {
       case ItemsSort.original:

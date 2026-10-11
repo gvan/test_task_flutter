@@ -4,6 +4,7 @@ import 'package:test_task_flutter/features/items/providers/favorite_items_provid
 import 'package:test_task_flutter/features/items/providers/item_details_provider.dart';
 import 'package:test_task_flutter/features/items/repository/items_repository.dart';
 import 'package:test_task_flutter/features/items/screens/favorite_items_screen.dart';
+import 'package:test_task_flutter/features/items/widgets/items_search_field.dart';
 
 import '../models/item_model.dart';
 import '../providers/items_provider.dart';
@@ -21,6 +22,8 @@ class ItemsScreen extends StatefulWidget {
 }
 
 class _ItemsScreenState extends State<ItemsScreen> {
+  var _showSearch = false;
+
   @override
   void initState() {
     super.initState();
@@ -63,9 +66,28 @@ class _ItemsScreenState extends State<ItemsScreen> {
             categoryFilter: state.categoryFilter,
             categories: state.categories,
           ),
+          IconButton(
+            onPressed: () {
+              setState(() {
+                _showSearch = !_showSearch;
+              });
+            },
+            icon: const Icon(Icons.search),
+          ),
         ],
       ),
-      body: SafeArea(child: _buildBody(state, provider)),
+      body: SafeArea(
+        child: Column(
+          children: [
+            if (_showSearch)
+              Padding(
+                padding: .fromLTRB(16, 8, 16, 8),
+                child: ItemsSearchField(onSearch: provider.search),
+              ),
+            Expanded(child: _buildBody(state, provider)),
+          ],
+        ),
+      ),
     );
   }
 

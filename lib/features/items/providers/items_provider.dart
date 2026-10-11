@@ -20,6 +20,7 @@ class ItemsProvider extends BaseProvider<ItemsState> {
       final items = await _repository.getItems(
         state.sort,
         state.categoryFilter,
+        state.searchQuery.trim(),
       );
       setState(
         backedState.copyWith(
@@ -54,6 +55,11 @@ class ItemsProvider extends BaseProvider<ItemsState> {
 
   void filterByCategory(String category) {
     setState(backedState.copyWith(categoryFilter: category));
+    loadItems();
+  }
+
+  void search(String query) {
+    setState(backedState.copyWith(searchQuery: query));
     loadItems();
   }
 }
