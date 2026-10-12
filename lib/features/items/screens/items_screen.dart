@@ -54,69 +54,75 @@ class _ItemsScreenState extends State<ItemsScreen> {
     final state = provider.state;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Каталог товарів'),
-        actions: [
-          IconButton(
-            onPressed: _openFavoriteItems,
-            icon: const Icon(Icons.favorite_outline),
-          ),
-          SortAction(initialValue: state.sort, onSelected: provider.sortBy),
-          FilterAction(
-            onFilter: provider.filterByCategory,
-            categoryFilter: state.categoryFilter,
-            categories: state.categories,
-          ),
-          IconButton(
-            onPressed: () {
-              if (_showSearch) {
-                _searchController.clear();
-                provider.search('');
-              }
-              setState(() {
-                _showSearch = !_showSearch;
-              });
-            },
-            icon: const Icon(Icons.search),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                ItemsSearchField(
-                  showSearch: _showSearch,
-                  searchController: _searchController,
-                  onSearch: provider.search,
-                ),
-                Expanded(child: _buildBody(state, provider)),
-              ],
-            ),
-            if (state.parametersActivated)
-              Positioned(
-                bottom: _bottomOffset,
-                right: 0,
-                left: 0,
-                child: Center(
-                  child: ResetParametersButton(
-                    buttonHeight: _buttonHeight,
-                    onTap: () {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      _searchController.clear();
-                      provider.clearParameters();
-                    },
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
+      appBar: _buildAppBar(state, provider),
+      body: SafeArea(child: _buildBody(provider, state)),
     );
   }
 
-  Widget _buildBody(ItemsState state, ItemsProvider provider) {
+  AppBar _buildAppBar(ItemsState state, ItemsProvider provider) {
+    return AppBar(
+      title: const Text('Каталог товарів'),
+      actions: [
+        IconButton(
+          onPressed: _openFavoriteItems,
+          icon: const Icon(Icons.favorite_outline),
+        ),
+        SortAction(initialValue: state.sort, onSelected: provider.sortBy),
+        FilterAction(
+          onFilter: provider.filterByCategory,
+          categoryFilter: state.categoryFilter,
+          categories: state.categories,
+        ),
+        IconButton(
+          onPressed: () {
+            if (_showSearch) {
+              _searchController.clear();
+              provider.search('');
+            }
+            setState(() {
+              _showSearch = !_showSearch;
+            });
+          },
+          icon: const Icon(Icons.search),
+        ),
+      ],
+    );
+  }
+
+  Stack _buildBody(ItemsProvider provider, ItemsState state) {
+    return Stack(
+      children: [
+        Column(
+          children: [
+            ItemsSearchField(
+              showSearch: _showSearch,
+              searchController: _searchController,
+              onSearch: provider.search,
+            ),
+            Expanded(child: _buildItems(state, provider)),
+          ],
+        ),
+        if (state.parametersActivated)
+          Positioned(
+            bottom: _bottomOffset,
+            right: 0,
+            left: 0,
+            child: Center(
+              child: ResetParametersButton(
+                buttonHeight: _buttonHeight,
+                onTap: () {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  _searchController.clear();
+                  provider.clearParameters();
+                },
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildItems(ItemsState state, ItemsProvider provider) {
     final items = state.items;
     if (state.isLoading && items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
