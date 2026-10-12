@@ -64,7 +64,7 @@ class ItemsProvider extends BaseProvider<ItemsState> {
       final categories = await _repository.getCategories();
       setState(backedState.copyWith(categories: categories));
     } catch (_) {
-      // TODO: Add show error to user
+      // TODO: Show an error to user
     }
   }
 

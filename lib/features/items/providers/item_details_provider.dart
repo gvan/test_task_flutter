@@ -30,7 +30,7 @@ class ItemDetailsProvider extends BaseProvider<ItemDetailsState> {
     try {
       await _repository.toggleFavorite(state.item.id);
     } catch (_) {
-      // TODO: Add show error to user
+      // TODO: Show an error to user
     }
     setState(backedState.copyWith(isFavoriteLoading: false));
   }
