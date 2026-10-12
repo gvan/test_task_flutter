@@ -69,6 +69,7 @@ class FakeItemsDataSource implements IItemsDataSource {
   FakeItemsDataSource({this.items = testItems});
 
   final List<ItemModel> items;
+  final Set<int> _favoriteIds = {};
 
   @override
   Future<List<ItemModel>> getItems() async => items;
@@ -76,4 +77,18 @@ class FakeItemsDataSource implements IItemsDataSource {
   @override
   Future<List<String>> getCategories() async =>
       items.map((e) => e.category).toSet().toList();
+
+  @override
+  Future<List<int>> getFavorites() async {
+    return _favoriteIds.toList();
+  }
+
+  @override
+  Future<void> toggleFavorite(int itemId) async {
+    if (_favoriteIds.contains(itemId)) {
+      _favoriteIds.remove(itemId);
+    } else {
+      _favoriteIds.add(itemId);
+    }
+  }
 }

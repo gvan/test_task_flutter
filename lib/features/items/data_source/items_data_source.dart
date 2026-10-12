@@ -3,6 +3,8 @@ import 'package:test_task_flutter/features/items/models/item_model.dart';
 abstract interface class IItemsDataSource {
   Future<List<ItemModel>> getItems();
   Future<List<String>> getCategories();
+  Future<void> toggleFavorite(int itemId);
+  Future<List<int>> getFavorites();
 }
 
 class ItemsDataSource implements IItemsDataSource {
@@ -58,6 +60,7 @@ class ItemsDataSource implements IItemsDataSource {
       iconCodePoint: 0xe2c8,
     ),
   ];
+  final Set<int> _favoriteIds = {};
 
   @override
   Future<List<String>> getCategories() async {
@@ -69,5 +72,19 @@ class ItemsDataSource implements IItemsDataSource {
   Future<List<ItemModel>> getItems() async {
     await Future.delayed(const Duration(milliseconds: 650));
     return _items;
+  }
+
+  @override
+  Future<void> toggleFavorite(int itemId) async {
+    if (_favoriteIds.contains(itemId)) {
+      _favoriteIds.remove(itemId);
+    } else {
+      _favoriteIds.add(itemId);
+    }
+  }
+
+  @override
+  Future<List<int>> getFavorites() async {
+    return _favoriteIds.toList();
   }
 }

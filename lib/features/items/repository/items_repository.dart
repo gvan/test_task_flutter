@@ -22,7 +22,6 @@ class ItemsRepository implements IItemsRepository {
   ItemsRepository({required this._dataSource});
 
   final IItemsDataSource _dataSource;
-  final Set<int> _favoriteIds = {};
   final _favoriteItemsStream = StreamController<List<ItemModel>>.broadcast();
   List<ItemModel>? _lastFavoriteItems;
 
@@ -79,12 +78,7 @@ class ItemsRepository implements IItemsRepository {
 
   @override
   Future<void> toggleFavorite(int itemId) async {
-    await Future.delayed(const Duration(milliseconds: 650));
-    if (_favoriteIds.contains(itemId)) {
-      _favoriteIds.remove(itemId);
-    } else {
-      _favoriteIds.add(itemId);
-    }
+    await _dataSource.toggleFavorite(itemId);
     await _emitFavoriteItems();
   }
 
@@ -95,8 +89,9 @@ class ItemsRepository implements IItemsRepository {
 
   Future<void> _emitFavoriteItems() async {
     final items = await _dataSource.getItems();
+    final favoriteIds = await _dataSource.getFavorites();
     final lastFavoriteItems = items
-        .where((e) => _favoriteIds.contains(e.id))
+        .where((e) => favoriteIds.contains(e.id))
         .toList();
     lastFavoriteItems.sort((a, b) => a.id.compareTo(b.id));
 
