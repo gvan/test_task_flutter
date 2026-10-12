@@ -14,10 +14,14 @@ class ItemsProvider extends BaseProvider<ItemsState> {
   ItemsState backedState = ItemsState.initial();
   ItemsState get state => backedState;
   StreamSubscription<List<ItemModel>>? _loadSubscription;
+  Completer<void>? _loadCompleter;
 
-  Future<void> loadItems() async {
-    _loadSubscription?.cancel();
+  Future<void> loadItems() {
+    _cancelLoad();
     setState(backedState.copyWith(isLoading: true, clearError: true));
+
+    final completer = Completer<void>();
+    _loadCompleter = completer;
     _loadSubscription = _repository
         .getItems(state.sort, state.categoryFilter, state.searchQuery.trim())
         .asStream()
@@ -40,13 +44,17 @@ class ItemsProvider extends BaseProvider<ItemsState> {
                 errorMessage: error.toString(),
               ),
             );
+            completer.complete();
           },
+          onDone: completer.complete,
+          cancelOnError: true,
         );
+    return completer.future;
   }
 
   @override
   void dispose() {
-    _loadSubscription?.cancel();
+    _cancelLoad();
     super.dispose();
   }
 
@@ -81,5 +89,13 @@ class ItemsProvider extends BaseProvider<ItemsState> {
       ),
     );
     loadItems();
+  }
+
+  void _cancelLoad() {
+    _loadSubscription?.cancel();
+    _loadSubscription = null;
+    final completer = _loadCompleter;
+    if (completer != null && !completer.isCompleted) completer.complete();
+    _loadCompleter = null;
   }
 }
