@@ -7,11 +7,13 @@ class ItemsSearchField extends StatefulWidget {
     super.key,
     required this.searchQuery,
     required this.showSearch,
+    required this.searchController,
     required this.onSearch,
   });
 
   final String searchQuery;
   final bool showSearch;
+  final TextEditingController searchController;
   final Function(String) onSearch;
 
   @override
@@ -20,29 +22,10 @@ class ItemsSearchField extends StatefulWidget {
 
 class _ItemsSearchFieldState extends State<ItemsSearchField> {
   var _searchEmpty = true;
-  late TextEditingController _searchController;
   Timer? _debounce;
 
   @override
-  void initState() {
-    super.initState();
-    _searchController = TextEditingController();
-  }
-
-  @override
-  void didUpdateWidget(covariant ItemsSearchField oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.searchQuery != oldWidget.searchQuery &&
-        widget.searchQuery != _searchController.text) {
-          _debounce?.cancel();
-          _searchController.text = widget.searchQuery;
-          _searchEmpty = widget.searchQuery.trim().isEmpty;
-        }
-  }
-
-  @override
   void dispose() {
-    _searchController.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -85,7 +68,7 @@ class _ItemsSearchFieldState extends State<ItemsSearchField> {
                     _searchEmpty = value.trim().isEmpty;
                   });
                 },
-                controller: _searchController,
+                controller: widget.searchController,
                 textInputAction: .search,
                 onSubmitted: (value) {
                   widget.onSearch(value);
@@ -95,7 +78,7 @@ class _ItemsSearchFieldState extends State<ItemsSearchField> {
                   if (!_searchEmpty)
                     IconButton(
                       onPressed: () {
-                        _searchController.clear();
+                        widget.searchController.clear();
                         widget.onSearch('');
                         setState(() {
                           _searchEmpty = true;

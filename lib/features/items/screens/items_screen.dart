@@ -29,15 +29,23 @@ class _ItemsScreenState extends State<ItemsScreen> {
   static const _buttonHeight = 56.0;
 
   var _showSearch = false;
+  late TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
+    _searchController = TextEditingController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ItemsProvider>();
       provider.loadItems();
       provider.loadCategories();
     });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -80,6 +88,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                 ItemsSearchField(
                   searchQuery: state.searchQuery,
                   showSearch: _showSearch,
+                  searchController: _searchController,
                   onSearch: provider.search,
                 ),
                 Expanded(child: _buildBody(state, provider)),
@@ -95,6 +104,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                     buttonHeight: _buttonHeight,
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
+                      _searchController.clear();
                       provider.clearParameters();
                     },
                   ),
