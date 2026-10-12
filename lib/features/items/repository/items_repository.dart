@@ -35,17 +35,14 @@ class ItemsRepository implements IItemsRepository {
     final allItems = await _dataSource.getItems();
     final items = categoryFilter.isEmpty && searchQuery.isEmpty
         ? allItems.toList()
-        : allItems
-              .where(
-                (e) =>
-                    (categoryFilter.isNotEmpty &&
-                        e.category == categoryFilter) ||
-                    (searchQuery.isNotEmpty &&
-                        e.title.toLowerCase().contains(
-                          searchQuery.toLowerCase(),
-                        )),
-              )
-              .toList();
+        : allItems.where((e) {
+            final matchCategory =
+                categoryFilter.isEmpty || e.category == categoryFilter;
+            final matchSearch =
+                searchQuery.isEmpty ||
+                e.title.toLowerCase().contains(searchQuery.toLowerCase());
+            return matchCategory && matchSearch;
+          }).toList();
 
     switch (sort) {
       case ItemsSort.original:
