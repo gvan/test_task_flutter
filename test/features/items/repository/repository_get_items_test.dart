@@ -57,7 +57,7 @@ void main() {
     });
 
     test('фільтр по категорії + пошук', () async {
-      final items = await repository.getItems(.original, 'Аксесуари', 'a');
+      final items = await repository.getItems(.original, 'Аксесуари', 'а');
       expect(items.toIds(), [4]);
     });
 
