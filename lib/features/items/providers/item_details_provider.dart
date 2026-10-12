@@ -27,7 +27,11 @@ class ItemDetailsProvider extends BaseProvider<ItemDetailsState> {
   Future<void> toggleFavorite() async {
     if (backedState.isFavoriteLoading) return;
     setState(backedState.copyWith(isFavoriteLoading: true));
-    await _repository.toggleFavorite(state.item.id);
+    try {
+      await _repository.toggleFavorite(state.item.id);
+    } catch (_) {
+      // TODO: Add show error to user
+    }
     setState(backedState.copyWith(isFavoriteLoading: false));
   }
 

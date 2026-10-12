@@ -63,7 +63,9 @@ class ItemsProvider extends BaseProvider<ItemsState> {
     try {
       final categories = await _repository.getCategories();
       setState(backedState.copyWith(categories: categories));
-    } catch (_) {}
+    } catch (_) {
+      // TODO: Add show error to user
+    }
   }
 
   void sortBy(ItemsSort sort) {
