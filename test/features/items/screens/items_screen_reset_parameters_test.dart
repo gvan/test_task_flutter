@@ -85,6 +85,28 @@ void main() {
       expect(_searchText(tester), isEmpty);
       expect(_resetButton, findsNothing);
     });
+
+    testWidgets('скидання до кінця debounce пошуку не виконує пошук', (
+      tester,
+    ) async {
+      await tester.pumpItemsScreen();
+      // show the Reset button
+      await _sortBy(tester, sortType);
+      await _openSearch(tester);
+
+      // input a search query and tap on the Reset button
+      await tester.enterText(find.byType(TextField), query);
+      await tester.pump(const Duration(milliseconds: 100));
+      await _tapOnReset(tester);
+
+      // wait for a delay
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+
+      expect(tester.toItemListIds(), _allIds);
+      expect(_searchText(tester), isEmpty);
+      expect(_resetButton, findsNothing);
+    });
   });
 }
 
