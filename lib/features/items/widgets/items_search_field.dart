@@ -5,13 +5,11 @@ import 'package:flutter/material.dart';
 class ItemsSearchField extends StatefulWidget {
   const ItemsSearchField({
     super.key,
-    required this.searchQuery,
     required this.showSearch,
     required this.searchController,
     required this.onSearch,
   });
 
-  final String searchQuery;
   final bool showSearch;
   final TextEditingController searchController;
   final Function(String) onSearch;
@@ -23,11 +21,30 @@ class ItemsSearchField extends StatefulWidget {
 class _ItemsSearchFieldState extends State<ItemsSearchField> {
   var _searchEmpty = true;
   Timer? _debounce;
+  String _pendingText = '';
+
+  @override
+  void initState() {
+    super.initState();
+    widget.searchController.addListener(_onControllerChanged);
+  }
 
   @override
   void dispose() {
     _debounce?.cancel();
+    widget.searchController.removeListener(_onControllerChanged);
     super.dispose();
+  }
+
+  void _onControllerChanged() {
+    final text = widget.searchController.text;
+    if (text != _pendingText) _debounce?.cancel();
+    final empty = text.trim().isEmpty;
+    if (empty != _searchEmpty) {
+      setState(() {
+        _searchEmpty = empty;
+      });
+    }
   }
 
   @override
@@ -60,7 +77,8 @@ class _ItemsSearchFieldState extends State<ItemsSearchField> {
                 padding: WidgetStatePropertyAll(.symmetric(horizontal: 16)),
                 hintText: 'Назва товару',
                 onChanged: (value) {
-                  if (_debounce?.isActive ?? false) _debounce?.cancel();
+                  _pendingText = value;
+                  _debounce?.cancel();
                   _debounce = Timer(const Duration(milliseconds: 500), () {
                     widget.onSearch(value);
                   });
@@ -71,6 +89,7 @@ class _ItemsSearchFieldState extends State<ItemsSearchField> {
                 controller: widget.searchController,
                 textInputAction: .search,
                 onSubmitted: (value) {
+                  _debounce?.cancel();
                   widget.onSearch(value);
                 },
                 leading: Icon(Icons.search),
@@ -80,9 +99,6 @@ class _ItemsSearchFieldState extends State<ItemsSearchField> {
                       onPressed: () {
                         widget.searchController.clear();
                         widget.onSearch('');
-                        setState(() {
-                          _searchEmpty = true;
-                        });
                       },
                       icon: Icon(Icons.clear),
                     ),

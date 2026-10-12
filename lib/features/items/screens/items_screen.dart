@@ -70,6 +70,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
           IconButton(
             onPressed: () {
               if (_showSearch) {
+                _searchController.clear();
                 provider.search('');
               }
               setState(() {
@@ -86,7 +87,6 @@ class _ItemsScreenState extends State<ItemsScreen> {
             Column(
               children: [
                 ItemsSearchField(
-                  searchQuery: state.searchQuery,
                   showSearch: _showSearch,
                   searchController: _searchController,
                   onSearch: provider.search,
