@@ -14,6 +14,7 @@ class ItemsProvider extends BaseProvider<ItemsState> {
   ItemsState backedState = ItemsState.initial();
   ItemsState get state => backedState;
   StreamSubscription<List<ItemModel>>? _loadSubscription;
+  // Waits for items loading complete
   Completer<void>? _loadCompleter;
 
   Future<void> loadItems() {
